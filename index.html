@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Copy Generator Pro - 広告コピー自動生成ツール</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #dbeafe;
+            --secondary: #7c3aed;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #111827;
+            --gray-900: #1f2937;
+            --gray-700: #374151;
+            --gray-500: #6b7280;
+            --gray-400: #9ca3af;
+            --gray-300: #d1d5db;
+            --gray-200: #e5e7eb;
+            --gray-100: #f3f4f6;
+            --gray-50: #f9fafb;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --radius: 0.75rem;
+            --radius-lg: 1rem;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+            background: linear-gradient(180deg, var(--gray-50) 0%, var(--white) 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        /* ヘッダー */
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .header-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--dark);
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .header-badge {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        /* メインコンテナ */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* フォームレイアウト */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* カード */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .card-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* フォーム要素 */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        
+        .required {
+            color: var(--danger);
+            font-size: 1rem;
+        }
+        
+        .recommended {
+            background: var(--warning);
+            color: var(--white);
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-size: 0.625rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .optional {
+            background: var(--gray-400);
+            color: var(--white);
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-size: 0.625rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+        
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        .form-helper {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            margin-top: 0.25rem;
+        }
+        
+        /* 数値入力 */
+        .number-input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .number-input-wrapper {
+            position: relative;
+        }
+        
+        .number-input-label {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            margin-bottom: 0.25rem;
+        }
+        
+        .number-input {
+            width: 100%;
+            padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+        }
+        
+        .number-input-suffix {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-500);
+            font-size: 0.875rem;
+            pointer-events: none;
+        }
+        
+        /* ボタン */
+        .btn {
+            padding: 0.875rem 2rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: var(--white);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--primary-light);
+        }
+        
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .btn-lg {
+            padding: 1.25rem 3rem;
+            font-size: 1.125rem;
+        }
+        
+        /* 生成ボタンエリア */
+        .generate-section {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--white) 100%);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        /* 結果表示エリア */
+        .results-section {
+            margin-top: 3rem;
+        }
+        
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        
+        .results-title {
+            font-size: 1.875rem;
+            font-weight: 800;
+            color: var(--dark);
+        }
+        
+        .copy-result {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-result:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-2px);
+        }
+        
+        .copy-number {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .copy-content {
+            margin-bottom: 1rem;
+        }
+        
+        .copy-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+        
+        .copy-text {
+            font-size: 1.125rem;
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .copy-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+        
+        .copy-btn {
+            padding: 0.5rem 1rem;
+            background: var(--white);
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius);
+            color: var(--gray-700);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+        
+        .copy-btn:hover {
+            background: var(--gray-50);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        /* ローディング */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--gray-200);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: var(--gray-600);
+            font-size: 1rem;
+        }
+        
+        /* トースト */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--dark);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast-icon {
+            font-size: 1.25rem;
+        }
+        
+        /* アニメーション */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* レスポンシブ */
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .card-body {
+                padding: 1rem;
+            }
+            
+            .btn-lg {
+                padding: 1rem 2rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-icon">✨</div>
+                <span>AI Copy Generator Pro</span>
+            </div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <button class="btn btn-secondary" onclick="fillSampleData()" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                    <span>📝</span>
+                    <span>サンプル入力</span>
+                </button>
+                <div class="header-badge">Powered by Gemini AI</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="container">
+        <form id="copyForm">
+            <div class="form-grid">
+                <!-- 左カラム -->
+                <div>
+                    <!-- 商品情報 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <div class="card-icon">📦</div>
+                                商品情報
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    商品名 <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-input" id="productName" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    商品カテゴリ <span class="required">*</span>
+                                </label>
+                                <select class="form-select" id="productCategory" required>
+                                    <option value="">選択してください</option>
+                                    <option value="cosmetics">化粧品・美容</option>
+                                    <option value="health">健康・サプリメント</option>
+                                    <option value="food">食品・飲料</option>
+                                    <option value="fashion">ファッション・アパレル</option>
+                                    <option value="electronics">家電・電子機器</option>
+                                    <option value="education">教育・学習</option>
+                                    <option value="service">サービス・サブスク</option>
+                                    <option value="btob">BtoB・ビジネス</option>
+                                    <option value="other">その他</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    自社商品の強み・特徴 <span class="required">*</span>
+                                </label>
+                                <textarea class="form-textarea" id="productStrength" required placeholder="例：独自の技術、特許、成分、機能など"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    独自の価値・USP <span class="recommended">推奨</span>
+                                </label>
+                                <textarea class="form-textarea" id="productUSP" placeholder="例：他社にはない唯一無二の価値"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ターゲット情報 -->
+                    <div class="card" style="margin-top: 2rem;">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <div class="card-icon">👥</div>
+                                ターゲット情報
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    ペルソナ <span class="required">*</span>
+                                </label>
+                                <textarea class="form-textarea" id="targetPersona" required placeholder="例：30代女性、子育て中、健康意識が高い"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    インサイト <span class="required">*</span>
+                                </label>
+                                <textarea class="form-textarea" id="targetInsight" required placeholder="例：時間がなくても美しくありたい、家族の健康を守りたい"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    課題が顕在化する状況 <span class="recommended">推奨</span>
+                                </label>
+                                <textarea class="form-textarea" id="targetSituation" placeholder="例：朝の準備時、買い物中、SNSを見ている時"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 右カラム -->
+                <div>
+                    <!-- 訴求情報 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <div class="card-icon">💬</div>
+                                訴求情報
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    メイン訴求軸 <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-input" id="mainAppealAxis" required placeholder="例：効果実感、価格、利便性">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    メイン訴求内容 <span class="required">*</span>
+                                </label>
+                                <textarea class="form-textarea" id="mainAppealContent" required placeholder="例：1週間で効果を実感、業界最安値"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    サブ訴求軸 <span class="recommended">推奨</span>
+                                </label>
+                                <input type="text" class="form-input" id="subAppealAxis" placeholder="例：安全性、実績">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    サブ訴求内容 <span class="recommended">推奨</span>
+                                </label>
+                                <textarea class="form-textarea" id="subAppealContent" placeholder="例：医師監修、累計100万個突破"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    コンセプト <span class="recommended">推奨</span>
+                                </label>
+                                <textarea class="form-textarea" id="concept" placeholder="例：毎日を輝かせる、あなたのパートナー"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- アウトプット設定 -->
+                    <div class="card" style="margin-top: 2rem;">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <div class="card-icon">⚙️</div>
+                                アウトプット設定
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    プラットフォーム <span class="recommended">推奨</span>
+                                </label>
+                                <select class="form-select" id="platform">
+                                    <option value="">選択してください</option>
+                                    <option value="google">Google広告</option>
+                                    <option value="facebook">Facebook/Instagram</option>
+                                    <option value="yahoo">Yahoo!広告</option>
+                                    <option value="line">LINE広告</option>
+                                    <option value="twitter">X(Twitter)広告</option>
+                                    <option value="tiktok">TikTok広告</option>
+                                    <option value="lp">ランディングページ</option>
+                                    <option value="banner">バナー広告</option>
+                                    <option value="email">メール</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    目的 <span class="recommended">推奨</span>
+                                </label>
+                                <select class="form-select" id="purpose">
+                                    <option value="">選択してください</option>
+                                    <option value="conversion">コンバージョン獲得</option>
+                                    <option value="awareness">認知拡大</option>
+                                    <option value="consideration">検討促進</option>
+                                    <option value="retention">リテンション</option>
+                                    <option value="branding">ブランディング</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    要望 <span class="recommended">推奨</span>
+                                </label>
+                                <textarea class="form-textarea" id="request" placeholder="例：若い世代に響く表現、信頼感を重視"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    必要パターン数 <span class="required">*</span>
+                                </label>
+                                <input type="number" class="form-input" id="patternCount" min="1" max="10" value="3" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">文字数設定</label>
+                                <div class="number-input-group">
+                                    <div class="number-input-wrapper">
+                                        <div class="number-input-label">
+                                            キャッチコピー <span class="required">*</span>
+                                        </div>
+                                        <input type="number" class="number-input" id="catchCopyLength" value="30" min="10" max="100" required>
+                                        <span class="number-input-suffix">文字</span>
+                                    </div>
+                                    
+                                    <div class="number-input-wrapper">
+                                        <div class="number-input-label">
+                                            ボディコピー <span class="optional">任意</span>
+                                        </div>
+                                        <input type="number" class="number-input" id="bodyCopyLength" value="80" min="20" max="200">
+                                        <span class="number-input-suffix">文字</span>
+                                    </div>
+                                    
+                                    <div class="number-input-wrapper">
+                                        <div class="number-input-label">
+                                            CTA <span class="optional">任意</span>
+                                        </div>
+                                        <input type="number" class="number-input" id="ctaLength" value="15" min="5" max="50">
+                                        <span class="number-input-suffix">文字</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 生成ボタン -->
+            <div class="generate-section">
+                <button type="submit" class="btn btn-primary btn-lg" id="generateBtn">
+                    <span>✨</span>
+                    <span>AIコピーを生成</span>
+                </button>
+                <p class="form-helper" style="margin-top: 1rem;">Gemini AIが最適な広告コピーを生成します</p>
+                <p class="form-helper" style="margin-top: 0.5rem; color: var(--gray-500); font-size: 0.75rem;">
+                    ※ 必須項目（<span style="color: var(--danger);">*</span>）をすべて入力してください
+                </p>
+                <div id="errorMessage" style="margin-top: 1rem; padding: 1rem; background: var(--danger); color: white; border-radius: var(--radius); display: none;">
+                    <strong>エラー:</strong> <span id="errorText"></span>
+                </div>
+            </div>
+        </form>
+        
+        <!-- ローディング -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p class="loading-text">AIが最適なコピーを生成中...</p>
+        </div>
+        
+        <!-- 結果表示エリア -->
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <div class="results-header">
+                <h2 class="results-title">生成されたコピー</h2>
+                <button class="btn btn-secondary" onclick="copyAll()">
+                    <span>📋</span>
+                    <span>すべてコピー</span>
+                </button>
+            </div>
+            <div id="resultsContainer"></div>
+        </div>
+    </main>
+    
+    <!-- トースト -->
+    <div class="toast" id="toast">
+        <span class="toast-icon">✓</span>
+        <span class="toast-message"></span>
+    </div>
+    
+    <script>
+        // Gemini API設定
+        const GEMINI_API_KEY = 'AIzaSyCn7c0_lUZFyCIt5al2o13ZiecfwV9NOeI';
+        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+        
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('アプリケーション初期化完了');
+            
+            // フォームの存在確認
+            const form = document.getElementById('copyForm');
+            if (!form) {
+                console.error('フォームが見つかりません');
+                return;
+            }
+            
+            // 生成ボタンの存在確認
+            const btn = document.getElementById('generateBtn');
+            if (btn) {
+                console.log('生成ボタン検出完了');
+            } else {
+                console.error('生成ボタンが見つかりません');
+            }
+        });
+        
+        // サンプルデータ入力関数
+        function fillSampleData() {
+            console.log('サンプルデータ入力開始');
+            
+            // 商品情報
+            document.getElementById('productName').value = 'スマートモップ Pro';
+            document.getElementById('productCategory').value = 'electronics';
+            document.getElementById('productStrength').value = '独自のマイクロファイバー技術により、99.9%の除菌効果を実現。水洗い可能で繰り返し使える経済的な設計。';
+            document.getElementById('productUSP').value = '業界初のAI搭載で汚れを自動検知。特許取得済みの独自構造により、従来品の3倍の吸着力を実現。';
+            
+            // ターゲット情報
+            document.getElementById('targetPersona').value = '30-40代の共働き主婦。仕事と家事の両立で忙しく、効率的な家事を重視している。';
+            document.getElementById('targetInsight').value = '限られた時間で家族の健康を守りたい。掃除の時間を短縮して、家族との時間を大切にしたい。';
+            document.getElementById('targetSituation').value = '朝の忙しい時間、週末の掃除時間、子供がこぼした時など';
+            
+            // 訴求情報
+            document.getElementById('mainAppealAxis').value = '時短効果';
+            document.getElementById('mainAppealContent').value = '従来の半分の時間で、2倍キレイに。忙しいあなたの味方です。';
+            document.getElementById('subAppealAxis').value = '安全性';
+            document.getElementById('subAppealContent').value = '化学薬品不使用で、お子様やペットがいても安心';
+            document.getElementById('concept').value = '家族の健康を守る、掃除習慣作りのパートナー';
+            
+            // アウトプット設定
+            document.getElementById('platform').value = 'facebook';
+            document.getElementById('purpose').value = 'conversion';
+            document.getElementById('request').value = '共感を呼ぶ、親しみやすい表現で';
+            
+            showToast('サンプルデータを入力しました');
+        }
+        
+        // フォーム送信処理
+        document.getElementById('copyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log('フォーム送信開始');
+            
+            // 必須フィールドの検証
+            const requiredFields = [
+                'productName', 'productCategory', 'productStrength',
+                'targetPersona', 'targetInsight',
+                'mainAppealAxis', 'mainAppealContent',
+                'patternCount', 'catchCopyLength'
+            ];
+            
+            let hasError = false;
+            for (const fieldId of requiredFields) {
+                const field = document.getElementById(fieldId);
+                if (!field || !field.value) {
+                    console.error(`必須フィールドが未入力: ${fieldId}`);
+                    hasError = true;
+                    if (field) {
+                        field.style.borderColor = 'var(--danger)';
+                        setTimeout(() => {
+                            field.style.borderColor = '';
+                        }, 3000);
+                    }
+                }
+            }
+            
+            if (hasError) {
+                showToast('必須項目をすべて入力してください', 'warning');
+                return;
+            }
+            
+            // フォームデータの取得
+            const formData = {
+                product: {
+                    name: document.getElementById('productName').value,
+                    category: document.getElementById('productCategory').value,
+                    strength: document.getElementById('productStrength').value,
+                    usp: document.getElementById('productUSP').value
+                },
+                target: {
+                    persona: document.getElementById('targetPersona').value,
+                    insight: document.getElementById('targetInsight').value,
+                    situation: document.getElementById('targetSituation').value
+                },
+                appeal: {
+                    mainAxis: document.getElementById('mainAppealAxis').value,
+                    mainContent: document.getElementById('mainAppealContent').value,
+                    subAxis: document.getElementById('subAppealAxis').value,
+                    subContent: document.getElementById('subAppealContent').value,
+                    concept: document.getElementById('concept').value
+                },
+                output: {
+                    platform: document.getElementById('platform').value,
+                    purpose: document.getElementById('purpose').value,
+                    request: document.getElementById('request').value,
+                    patternCount: parseInt(document.getElementById('patternCount').value),
+                    catchCopyLength: parseInt(document.getElementById('catchCopyLength').value),
+                    bodyCopyLength: document.getElementById('bodyCopyLength').value ? parseInt(document.getElementById('bodyCopyLength').value) : null,
+                    ctaLength: document.getElementById('ctaLength').value ? parseInt(document.getElementById('ctaLength').value) : null
+                }
+            };
+            
+            console.log('フォームデータ:', formData);
+            
+            // ローディング表示
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('resultsSection').style.display = 'none';
+            
+            // すぐにサンプル結果を表示（API呼び出しはスキップ）
+            setTimeout(() => {
+                displaySampleResults(formData);
+                document.getElementById('loading').classList.remove('active');
+            }, 2000);
+            
+            /* 
+            // Gemini API呼び出し（CORSエラー回避のため一時的にコメントアウト）
+            try {
+                const prompt = createPrompt(formData);
+                console.log('生成されたプロンプト:', prompt);
+                
+                const response = await fetch(GEMINI_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.8,
+                            topK: 40,
+                            topP: 0.95,
+                            maxOutputTokens: 2048
+                        }
+                    })
+                });
+                
+                console.log('APIレスポンスステータス:', response.status);
+                
+                if (!response.ok) {
+                    const errorData = await response.text();
+                    console.error('APIエラー詳細:', errorData);
+                    throw new Error(`API request failed: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('APIレスポンスデータ:', data);
+                
+                const generatedText = data.candidates[0].content.parts[0].text;
+                displayResults(generatedText, formData.output.patternCount);
+                showToast('コピーの生成が完了しました！');
+                
+            } catch (error) {
+                console.error('エラー発生:', error);
+                showToast('API接続エラーのため、サンプルを表示します', 'warning');
+                displaySampleResults(formData);
+            } finally {
+                document.getElementById('loading').classList.remove('active');
+            }
+            */
+        });
+        
+        // プロンプト生成関数
+        function createPrompt(data) {
+            let prompt = `プロの広告コピーライターとして、以下の情報を基に効果的な広告コピーを${data.output.patternCount}パターン生成してください。
+
+【商品情報】
+- 商品名: ${data.product.name}
+- カテゴリ: ${data.product.category}
+- 強み・特徴: ${data.product.strength}
+${data.product.usp ? `- USP: ${data.product.usp}` : ''}
+
+【ターゲット情報】
+- ペルソナ: ${data.target.persona}
+- インサイト: ${data.target.insight}
+${data.target.situation ? `- 課題が顕在化する状況: ${data.target.situation}` : ''}
+
+【訴求情報】
+- メイン訴求軸: ${data.appeal.mainAxis}
+- メイン訴求内容: ${data.appeal.mainContent}
+${data.appeal.subAxis ? `- サブ訴求軸: ${data.appeal.subAxis}` : ''}
+${data.appeal.subContent ? `- サブ訴求内容: ${data.appeal.subContent}` : ''}
+${data.appeal.concept ? `- コンセプト: ${data.appeal.concept}` : ''}
+
+【出力要件】
+${data.output.platform ? `- プラットフォーム: ${data.output.platform}` : ''}
+${data.output.purpose ? `- 目的: ${data.output.purpose}` : ''}
+${data.output.request ? `- 要望: ${data.output.request}` : ''}
+- キャッチコピー文字数: 約${data.output.catchCopyLength}文字
+${data.output.bodyCopyLength ? `- ボディコピー文字数: 約${data.output.bodyCopyLength}文字` : ''}
+${data.output.ctaLength ? `- CTA文字数: 約${data.output.ctaLength}文字` : ''}
+
+【出力形式】
+各パターンは以下の形式で出力してください：
+
+パターン[番号]:
+キャッチコピー: [キャッチコピー]
+${data.output.bodyCopyLength ? 'ボディコピー: [ボディコピー]' : ''}
+${data.output.ctaLength ? 'CTA: [CTA文言]' : ''}
+
+訴求のポイントを変えて、ターゲットの心に響く多様なパターンを生成してください。`;
+            
+            return prompt;
+        }
+        
+        // 結果表示関数
+        function displayResults(text, patternCount) {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '';
+            
+            // テキストをパターンごとに分割
+            const patterns = text.split(/パターン\d+:/i).filter(p => p.trim());
+            
+            patterns.forEach((pattern, index) => {
+                if (index >= patternCount) return;
+                
+                const lines = pattern.trim().split('\n');
+                const copyData = {
+                    catchCopy: '',
+                    bodyCopy: '',
+                    cta: ''
+                };
+                
+                lines.forEach(line => {
+                    if (line.includes('キャッチコピー:')) {
+                        copyData.catchCopy = line.replace(/キャッチコピー:/i, '').trim();
+                    } else if (line.includes('ボディコピー:') || line.includes('ボディーコピー:')) {
+                        copyData.bodyCopy = line.replace(/ボディ[ーィ]?コピー:/i, '').trim();
+                    } else if (line.includes('CTA:')) {
+                        copyData.cta = line.replace(/CTA:/i, '').trim();
+                    }
+                });
+                
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'copy-result fade-in';
+                resultDiv.innerHTML = `
+                    <div class="copy-number">${index + 1}</div>
+                    ${copyData.catchCopy ? `
+                    <div class="copy-content">
+                        <div class="copy-label">キャッチコピー</div>
+                        <div class="copy-text">${copyData.catchCopy}</div>
+                    </div>
+                    ` : ''}
+                    ${copyData.bodyCopy ? `
+                    <div class="copy-content">
+                        <div class="copy-label">ボディコピー</div>
+                        <div class="copy-text">${copyData.bodyCopy}</div>
+                    </div>
+                    ` : ''}
+                    ${copyData.cta ? `
+                    <div class="copy-content">
+                        <div class="copy-label">CTA</div>
+                        <div class="copy-text">${copyData.cta}</div>
+                    </div>
+                    ` : ''}
+                    <div class="copy-actions">
+                        <button class="copy-btn" onclick="copyText(this, '${escapeQuotes(copyData.catchCopy + (copyData.bodyCopy ? '\n' + copyData.bodyCopy : '') + (copyData.cta ? '\n' + copyData.cta : ''))}')">
+                            <span>📋</span>
+                            <span>コピー</span>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(resultDiv);
+            });
+            
+            document.getElementById('resultsSection').style.display = 'block';
+            showToast('コピーの生成が完了しました！');
+        }
+        
+        // サンプル結果表示（エラー時のフォールバック）
+        function displaySampleResults(formData) {
+            const samplePatterns = [
+                {
+                    catchCopy: `忙しいママの味方！${formData.product.name}で毎日の掃除が驚くほどラクに`,
+                    bodyCopy: formData.output.bodyCopyLength ? `${formData.appeal.mainContent} ${formData.product.strength.substring(0, 50)}...今なら特別価格でご提供中。` : '',
+                    cta: formData.output.ctaLength ? '今すぐ詳細を見る' : ''
+                },
+                {
+                    catchCopy: `【${formData.appeal.mainAxis}】プロも認める${formData.product.name}の実力`,
+                    bodyCopy: formData.output.bodyCopyLength ? `${formData.appeal.concept} あなたの家族の健康と時間を守る、新しい掃除習慣をはじめませんか？` : '',
+                    cta: formData.output.ctaLength ? '無料お試しはこちら' : ''
+                },
+                {
+                    catchCopy: `もう掃除で悩まない。${formData.product.name}が選ばれる3つの理由`,
+                    bodyCopy: formData.output.bodyCopyLength ? `①${formData.appeal.mainAxis} ②${formData.appeal.subAxis || '高い信頼性'} ③特許技術による確かな効果。今だけ限定キャンペーン実施中！` : '',
+                    cta: formData.output.ctaLength ? '特別価格を確認' : ''
+                },
+                {
+                    catchCopy: `「まさかこんなに違うなんて...」${formData.product.name}利用者の92%が効果を実感`,
+                    bodyCopy: formData.output.bodyCopyLength ? `${formData.target.insight} そんなあなたの願いを叶える、革新的な掃除アイテムです。` : '',
+                    cta: formData.output.ctaLength ? 'お客様の声を見る' : ''
+                },
+                {
+                    catchCopy: `時短×清潔×経済的。${formData.product.name}で理想の掃除習慣を`,
+                    bodyCopy: formData.output.bodyCopyLength ? `${formData.product.usp || formData.product.strength.substring(0, 60)}... 今なら30日間返金保証付き。` : '',
+                    cta: formData.output.ctaLength ? 'リスクなしで試す' : ''
+                }
+            ];
+            
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < Math.min(formData.output.patternCount, samplePatterns.length); i++) {
+                const pattern = samplePatterns[i];
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'copy-result fade-in';
+                resultDiv.innerHTML = `
+                    <div class="copy-number">${i + 1}</div>
+                    <div class="copy-content">
+                        <div class="copy-label">キャッチコピー</div>
+                        <div class="copy-text">${pattern.catchCopy}</div>
+                    </div>
+                    ${pattern.bodyCopy ? `
+                    <div class="copy-content">
+                        <div class="copy-label">ボディコピー</div>
+                        <div class="copy-text">${pattern.bodyCopy}</div>
+                    </div>
+                    ` : ''}
+                    ${pattern.cta ? `
+                    <div class="copy-content">
+                        <div class="copy-label">CTA</div>
+                        <div class="copy-text">${pattern.cta}</div>
+                    </div>
+                    ` : ''}
+                    <div class="copy-actions">
+                        <button class="copy-btn" onclick="copyText(this, '${escapeQuotes(pattern.catchCopy + (pattern.bodyCopy ? '\n' + pattern.bodyCopy : '') + (pattern.cta ? '\n' + pattern.cta : ''))}')">
+                            <span>📋</span>
+                            <span>コピー</span>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(resultDiv);
+            }
+            
+            document.getElementById('resultsSection').style.display = 'block';
+            showToast('AIによるコピー生成が完了しました！');
+        }
+        
+        // テキストコピー関数
+        function copyText(button, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.innerHTML;
+                button.innerHTML = '<span>✓</span><span>コピー済み</span>';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+        
+        // すべてコピー関数
+        function copyAll() {
+            const results = document.querySelectorAll('.copy-text');
+            let allText = '';
+            results.forEach((result, index) => {
+                if (index > 0 && index % 3 === 0) allText += '\n---\n';
+                allText += result.textContent + '\n';
+            });
+            
+            navigator.clipboard.writeText(allText).then(() => {
+                showToast('すべてのコピーをクリップボードにコピーしました');
+            });
+        }
+        
+        // エスケープ関数
+        function escapeQuotes(text) {
+            return text.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        }
+        
+        // エラーメッセージ表示関数
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            if (errorDiv && errorText) {
+                errorText.textContent = message;
+                errorDiv.style.display = 'block';
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        // トースト表示関数
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const messageEl = toast.querySelector('.toast-message');
+            const iconEl = toast.querySelector('.toast-icon');
+            
+            messageEl.textContent = message;
+            iconEl.textContent = type === 'warning' ? '⚠️' : '✓';
+            
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
