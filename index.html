@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>広告用バナー生成ツール | AI Banner Generator</title>
+    <title>広告用バナー生成ツール | AI Banner Generator with Gemini Translation</title>
     <style>
         * {
             margin: 0;
@@ -45,34 +45,6 @@
             min-height: 100vh;
             color: var(--dark);
             line-height: 1.6;
-        }
-        
-        /* セキュリティ警告 */
-        .security-warning {
-            background: #fef2f2;
-            border: 2px solid #ef4444;
-            border-radius: var(--radius);
-            padding: 1rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: start;
-            gap: 0.75rem;
-        }
-        
-        .security-warning-icon {
-            color: #ef4444;
-            font-size: 1.25rem;
-            flex-shrink: 0;
-        }
-        
-        .security-warning-content h4 {
-            color: #991b1b;
-            margin-bottom: 0.25rem;
-        }
-        
-        .security-warning-content p {
-            color: #7f1d1d;
-            font-size: 0.875rem;
         }
         
         /* ヘッダー */
@@ -130,7 +102,7 @@
             padding: 2rem;
         }
         
-        /* APIキー設定カード */
+        /* API設定カード */
         .api-setup-card {
             background: var(--white);
             border-radius: var(--radius-xl);
@@ -141,7 +113,7 @@
         
         .api-setup-header {
             padding: 1.5rem;
-            background: linear-gradient(135deg, #fef2f215 0%, #fee2e215 100%);
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
             border-bottom: 1px solid var(--gray-200);
         }
         
@@ -289,39 +261,6 @@
             font-weight: 600;
         }
         
-        /* デザインスタイル選択 */
-        .style-options {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-        
-        .style-option {
-            position: relative;
-            cursor: pointer;
-        }
-        
-        .style-option input[type="radio"] {
-            position: absolute;
-            opacity: 0;
-        }
-        
-        .style-option-label {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem;
-            border: 2px solid var(--gray-200);
-            border-radius: var(--radius);
-            transition: all 0.2s;
-            background: var(--white);
-        }
-        
-        .style-option input[type="radio"]:checked + .style-option-label {
-            border-color: var(--primary);
-            background: var(--primary-light);
-        }
-        
         /* ボタン */
         .btn {
             padding: 0.75rem 1.5rem;
@@ -398,7 +337,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -418,6 +357,56 @@
         
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+        
+        /* プロンプト表示 */
+        .prompt-display {
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .prompt-display h4 {
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .prompt-display pre {
+            background: var(--white);
+            padding: 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: var(--gray-700);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        /* インフォボックス */
+        .info-box {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .info-box h4 {
+            color: #0369a1;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .info-box p {
+            color: #075985;
+            font-size: 0.875rem;
+            line-height: 1.5;
         }
         
         /* トースト */
@@ -465,21 +454,13 @@
 
     <!-- メインコンテンツ -->
     <main class="container">
-        <!-- APIキー設定 -->
+        <!-- API設定 -->
         <div class="api-setup-card" id="apiSetupCard">
             <div class="api-setup-header">
-                <h2 style="color: var(--danger); margin-bottom: 0.5rem;">🔐 APIキー設定（重要）</h2>
-                <p style="color: var(--gray-700);">DALL-E 3を使用するためにOpenAI APIキーの設定が必要です</p>
+                <h2 style="margin-bottom: 0.5rem;">🔐 APIキー設定</h2>
+                <p style="color: var(--gray-700);">OpenAI APIキーの設定が必要です（Gemini翻訳はGAS経由で実行）</p>
             </div>
             <div class="api-setup-body">
-                <div class="security-warning">
-                    <div class="security-warning-icon">⚠️</div>
-                    <div class="security-warning-content">
-                        <h4>セキュリティに関する重要な注意</h4>
-                        <p>APIキーは絶対に他人と共有しないでください。このツールはローカルストレージに保存し、外部送信しません。</p>
-                    </div>
-                </div>
-                
                 <div class="form-group">
                     <label class="form-label">OpenAI APIキー</label>
                     <div class="password-input-group">
@@ -509,26 +490,40 @@
             <!-- 入力フォーム -->
             <div class="card">
                 <div class="card-header">
-                    📝 バナー生成設定
+                    📝 バナー生成設定（日本語OK）
                 </div>
                 <div class="card-body">
+                    <div class="info-box">
+                        <h4>💡 テキストなしバナー生成モード</h4>
+                        <p>
+                            背景とデザイン要素のみを生成します。<br>
+                            生成後、CanvaやFigmaで日本語テキストを追加してください。
+                        </p>
+                    </div>
+                    
                     <form id="bannerForm">
-                        <!-- キャッチコピー -->
+                        <!-- 用途 -->
                         <div class="form-group">
                             <label class="form-label">
-                                キャッチコピー <span class="required">*</span>
+                                バナーの用途 <span class="required">*</span>
                             </label>
-                            <input type="text" class="form-input" id="catchCopy" required
-                                   placeholder="例：今なら初回限定50%OFF">
+                            <input type="text" class="form-input" id="purpose" required
+                                   placeholder="例：化粧品のセール広告、新商品の告知バナー">
+                            <div class="form-helper">
+                                どのような目的で使用するバナーか記載してください
+                            </div>
                         </div>
                         
-                        <!-- リードコピー -->
+                        <!-- テキスト配置エリア -->
                         <div class="form-group">
                             <label class="form-label">
-                                リードコピー <span class="optional">(任意)</span>
+                                テキスト配置予定エリア <span class="required">*</span>
                             </label>
-                            <input type="text" class="form-input" id="leadCopy"
-                                   placeholder="例：プロが認めた品質を、あなたに">
+                            <textarea class="form-textarea" id="textArea" required
+                                      placeholder="例：上部にキャッチコピー用の大きなスペース、下部にCTAボタン用のエリア"></textarea>
+                            <div class="form-helper">
+                                後から追加するテキストのための空白エリアを指定
+                            </div>
                         </div>
                         
                         <!-- サイズ選択 -->
@@ -561,102 +556,122 @@
                             </div>
                         </div>
                         
-                        <!-- 背景イメージ -->
+                        <!-- 背景・デザイン要素 -->
                         <div class="form-group">
                             <label class="form-label">
-                                背景イメージ <span class="required">*</span>
+                                背景・デザイン要素 <span class="required">*</span>
                             </label>
-                            <textarea class="form-textarea" id="backgroundImage" required
-                                      placeholder="例：高級感のある金色のグラデーション背景、キラキラした光の演出"></textarea>
+                            <textarea class="form-textarea" id="designElements" required
+                                      placeholder="例：ピンクとゴールドのグラデーション背景、キラキラした光の演出、化粧品のシルエット"></textarea>
+                            <div class="form-helper">
+                                背景色、模様、装飾要素などを日本語で記載
+                            </div>
                         </div>
                         
-                        <!-- デザインスタイル -->
+                        <!-- 雰囲気・スタイル -->
                         <div class="form-group">
                             <label class="form-label">
-                                デザインスタイル <span class="required">*</span>
+                                雰囲気・スタイル <span class="required">*</span>
                             </label>
-                            <div class="style-options">
-                                <div class="style-option">
-                                    <input type="radio" name="style" id="style-modern" value="modern" checked>
-                                    <label for="style-modern" class="style-option-label">
-                                        <div>
-                                            <strong>モダン</strong>
-                                            <div style="font-size: 0.75rem; color: var(--gray-500);">洗練された現代的デザイン</div>
-                                        </div>
-                                    </label>
-                                </div>
-                                <div class="style-option">
-                                    <input type="radio" name="style" id="style-pop" value="pop">
-                                    <label for="style-pop" class="style-option-label">
-                                        <div>
-                                            <strong>ポップ</strong>
-                                            <div style="font-size: 0.75rem; color: var(--gray-500);">明るく楽しいデザイン</div>
-                                        </div>
-                                    </label>
-                                </div>
-                                <div class="style-option">
-                                    <input type="radio" name="style" id="style-elegant" value="elegant">
-                                    <label for="style-elegant" class="style-option-label">
-                                        <div>
-                                            <strong>エレガント</strong>
-                                            <div style="font-size: 0.75rem; color: var(--gray-500);">上品で高級感のあるデザイン</div>
-                                        </div>
-                                    </label>
-                                </div>
-                                <div class="style-option">
-                                    <input type="radio" name="style" id="style-minimal" value="minimal">
-                                    <label for="style-minimal" class="style-option-label">
-                                        <div>
-                                            <strong>ミニマル</strong>
-                                            <div style="font-size: 0.75rem; color: var(--gray-500);">シンプルで洗練されたデザイン</div>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
+                            <select class="form-select" id="atmosphere" required>
+                                <option value="">選択してください</option>
+                                <option value="高級感">高級感・プレミアム</option>
+                                <option value="ポップ">ポップ・カジュアル</option>
+                                <option value="ミニマル">ミニマル・シンプル</option>
+                                <option value="エレガント">エレガント・上品</option>
+                                <option value="ビジネス">ビジネス・信頼感</option>
+                                <option value="かわいい">かわいい・フェミニン</option>
+                                <option value="クール">クール・スタイリッシュ</option>
+                                <option value="ナチュラル">ナチュラル・オーガニック</option>
+                            </select>
+                        </div>
+                        
+                        <!-- カラーテーマ -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                カラーテーマ <span class="optional">(任意)</span>
+                            </label>
+                            <input type="text" class="form-input" id="colorTheme"
+                                   placeholder="例：ピンクとゴールド、青と白、モノトーン">
                         </div>
                         
                         <!-- 追加要望 -->
                         <div class="form-group">
                             <label class="form-label">
-                                追加要望 <span class="optional">(任意)</span>
+                                その他の要望 <span class="optional">(任意)</span>
                             </label>
                             <textarea class="form-textarea" id="additionalRequest"
-                                      placeholder="例：文字は太めで読みやすく、CTAボタンを目立たせる"></textarea>
+                                      placeholder="例：季節感を出したい、若い世代向けの雰囲気"></textarea>
                         </div>
                         
                         <!-- 生成ボタン -->
                         <button type="submit" class="btn btn-primary btn-block" id="generateBtn" disabled>
-                            <span>🎨</span>
-                            <span>バナーを生成する</span>
+                            <span>✨</span>
+                            <span>バナー背景を生成する</span>
                         </button>
                         <p style="text-align: center; margin-top: 0.5rem; font-size: 0.875rem; color: var(--gray-500);">
-                            生成には1枚あたり約$0.04〜$0.08かかります
+                            Geminiで翻訳 → DALL-E 3で生成
                         </p>
                     </form>
                 </div>
             </div>
             
             <!-- プレビューエリア -->
-            <div class="card">
-                <div class="card-header">
-                    👁️ プレビュー
-                </div>
-                <div class="card-body">
-                    <div class="preview-container" id="previewContainer">
-                        <div class="preview-placeholder">
-                            <div style="font-size: 4rem; margin-bottom: 1rem;">🖼️</div>
-                            <p>生成されたバナーがここに表示されます</p>
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        👁️ プレビュー
+                    </div>
+                    <div class="card-body">
+                        <div class="preview-container" id="previewContainer">
+                            <div class="preview-placeholder">
+                                <div style="font-size: 4rem; margin-bottom: 1rem;">🖼️</div>
+                                <p>生成されたバナー背景がここに表示されます</p>
+                                <p style="font-size: 0.875rem; color: var(--gray-500); margin-top: 0.5rem;">
+                                    テキストは後から追加してください
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- 生成されたプロンプト表示 -->
+                        <div class="prompt-display" id="promptDisplay" style="display: none;">
+                            <h4>🤖 生成された英語プロンプト</h4>
+                            <pre id="generatedPrompt"></pre>
+                        </div>
+                        
+                        <!-- アクションボタン -->
+                        <div id="actionButtons" style="display: none; margin-top: 1rem; gap: 1rem;">
+                            <button class="btn btn-secondary" onclick="downloadImage()">
+                                💾 画像をダウンロード
+                            </button>
+                            <button class="btn btn-secondary" onclick="regenerate()">
+                                🔄 再生成
+                            </button>
+                            <button class="btn btn-secondary" onclick="copyPrompt()">
+                                📋 プロンプトをコピー
+                            </button>
                         </div>
                     </div>
-                    
-                    <!-- アクションボタン -->
-                    <div id="actionButtons" style="display: none; margin-top: 1rem; gap: 1rem;">
-                        <button class="btn btn-secondary" onclick="downloadImage()">
-                            💾 ダウンロード
-                        </button>
-                        <button class="btn btn-secondary" onclick="regenerate()">
-                            🔄 再生成
-                        </button>
+                </div>
+                
+                <!-- 使い方ガイド -->
+                <div class="card" style="margin-top: 2rem;">
+                    <div class="card-header">
+                        📚 使い方ガイド
+                    </div>
+                    <div class="card-body">
+                        <ol style="line-height: 1.8;">
+                            <li><strong>バナー背景を生成</strong>：このツールで背景デザインを作成</li>
+                            <li><strong>画像をダウンロード</strong>：生成された背景画像を保存</li>
+                            <li><strong>テキストを追加</strong>：
+                                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                                    <li><a href="https://www.canva.com/" target="_blank" style="color: var(--primary);">Canva</a>（無料・簡単）</li>
+                                    <li><a href="https://www.figma.com/" target="_blank" style="color: var(--primary);">Figma</a>（無料・プロ向け）</li>
+                                    <li>Photoshop（有料・高機能）</li>
+                                </ul>
+                            </li>
+                            <li><strong>完成</strong>：日本語テキスト入りの完璧なバナー！</li>
+                        </ol>
                     </div>
                 </div>
             </div>
@@ -669,8 +684,13 @@
     </div>
     
     <script>
-        // APIキー管理（セキュアな方法）
+        // GAS Proxy URL (Gemini翻訳用)
+        const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbyzvQeN_uI-DiqynipRE1pem7fJRF_rvt30JHsuAuLH1-k-MDKkotVpukRAsW0lEEGa/exec';
+        
+        // APIキー管理
         let apiKey = '';
+        let currentImageUrl = '';
+        let currentPrompt = '';
         
         // 初期化
         document.addEventListener('DOMContentLoaded', () => {
@@ -728,17 +748,15 @@
                 return;
             }
             
-            // ローカルストレージに保存（ブラウザ内のみ）
             localStorage.setItem('openai_api_key', keyInput);
             apiKey = keyInput;
             
-            // UI更新
             document.getElementById('apiKeyInput').value = '';
             updateApiStatus(true);
             document.getElementById('generateBtn').disabled = false;
             document.getElementById('apiSetupCard').style.display = 'none';
             
-            showToast('APIキーを安全に保存しました', 'success');
+            showToast('APIキーを保存しました', 'success');
         }
         
         // APIキー削除
@@ -763,53 +781,116 @@
             }
             
             const formData = {
-                catchCopy: document.getElementById('catchCopy').value,
-                leadCopy: document.getElementById('leadCopy').value,
+                purpose: document.getElementById('purpose').value,
+                textArea: document.getElementById('textArea').value,
                 size: document.querySelector('input[name="size"]:checked').value,
-                backgroundImage: document.getElementById('backgroundImage').value,
-                style: document.querySelector('input[name="style"]:checked').value,
+                designElements: document.getElementById('designElements').value,
+                atmosphere: document.getElementById('atmosphere').value,
+                colorTheme: document.getElementById('colorTheme').value,
                 additionalRequest: document.getElementById('additionalRequest').value
             };
             
             await generateBanner(formData);
         });
         
+        // Geminiで日本語を英語プロンプトに翻訳
+        async function translateToEnglishPrompt(formData) {
+            const japaneseDescription = `
+                用途: ${formData.purpose}
+                テキスト配置エリア: ${formData.textArea}
+                背景・デザイン要素: ${formData.designElements}
+                雰囲気: ${formData.atmosphere}
+                ${formData.colorTheme ? `カラーテーマ: ${formData.colorTheme}` : ''}
+                ${formData.additionalRequest ? `追加要望: ${formData.additionalRequest}` : ''}
+            `;
+            
+            const translationPrompt = `
+以下の日本語のバナー要件を、DALL-E 3用の英語プロンプトに変換してください。
+
+【重要な注意事項】
+- テキストは一切含めない（テキストなしの背景デザインのみ）
+- "NO TEXT", "without any text"を必ず含める
+- テキスト配置用の空白スペースを確保する指示を含める
+
+【日本語要件】
+${japaneseDescription}
+
+【出力形式】
+Professional advertising banner background design:
+- [英語に翻訳された内容]
+- NO TEXT or letters (text will be added later)
+- Leave clear space for text placement
+- High quality, suitable for digital advertising
+
+プロンプトのみを出力してください。説明は不要です。`;
+            
+            try {
+                const response = await fetch(GAS_PROXY_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    },
+                    body: JSON.stringify({ prompt: translationPrompt })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Translation API error: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.error || 'Translation error');
+                }
+                
+                const translatedPrompt = result.data.candidates[0].content.parts[0].text.trim();
+                return translatedPrompt;
+                
+            } catch (error) {
+                console.error('翻訳エラー:', error);
+                // フォールバック：基本的な英語プロンプトを生成
+                return `Professional advertising banner background design without any text. ${formData.atmosphere} style with ${formData.colorTheme || 'vibrant colors'}. Leave clear space for text overlay. High quality, suitable for digital advertising. NO TEXT or letters.`;
+            }
+        }
+        
         // バナー生成
         async function generateBanner(formData) {
             const generateBtn = document.getElementById('generateBtn');
             const previewContainer = document.getElementById('previewContainer');
+            const promptDisplay = document.getElementById('promptDisplay');
+            const generatedPromptEl = document.getElementById('generatedPrompt');
             
             // ローディング表示
             generateBtn.disabled = true;
             previewContainer.innerHTML = `
                 <div class="loading-overlay">
                     <div class="spinner"></div>
-                    <p>バナーを生成中...</p>
-                    <p style="font-size: 0.875rem; color: var(--gray-500); margin-top: 0.5rem;">
-                        約10-20秒かかります
-                    </p>
+                    <p>プロンプトを翻訳中...</p>
                 </div>
             `;
             
-            // スタイルマッピング
-            const styleMap = {
-                modern: 'modern and sleek design',
-                pop: 'colorful and playful pop art style',
-                elegant: 'elegant and luxurious design',
-                minimal: 'minimalist and clean design'
-            };
-            
-            // プロンプト生成（日本語対応改善）
-            const prompt = `Create a professional advertising banner with the following specifications:
-                Main text: "${formData.catchCopy}" (display this text prominently in Japanese)
-                ${formData.leadCopy ? `Sub text: "${formData.leadCopy}" (display in Japanese)` : ''}
-                Background: ${formData.backgroundImage}
-                Style: ${styleMap[formData.style]}
-                ${formData.additionalRequest ? `Additional requirements: ${formData.additionalRequest}` : ''}
-                IMPORTANT: The Japanese text must be clearly readable and properly displayed.
-                Design should be suitable for digital advertising with high visual impact.`;
-            
             try {
+                // Step 1: Geminiで翻訳
+                const englishPrompt = await translateToEnglishPrompt(formData);
+                currentPrompt = englishPrompt;
+                
+                // 翻訳されたプロンプトを表示
+                generatedPromptEl.textContent = englishPrompt;
+                promptDisplay.style.display = 'block';
+                
+                // ローディング更新
+                previewContainer.innerHTML = `
+                    <div class="loading-overlay">
+                        <div class="spinner"></div>
+                        <p>バナー背景を生成中...</p>
+                        <p style="font-size: 0.875rem; color: var(--gray-500); margin-top: 0.5rem;">
+                            約10-20秒かかります
+                        </p>
+                    </div>
+                `;
+                
+                // Step 2: DALL-E 3で画像生成
                 const response = await fetch('https://api.openai.com/v1/images/generations', {
                     method: 'POST',
                     headers: {
@@ -818,7 +899,7 @@
                     },
                     body: JSON.stringify({
                         model: 'dall-e-3',
-                        prompt: prompt,
+                        prompt: englishPrompt,
                         n: 1,
                         size: formData.size,
                         quality: 'standard',
@@ -833,20 +914,17 @@
                 
                 const data = await response.json();
                 const imageUrl = data.data[0].url;
+                currentImageUrl = imageUrl;
                 
                 // 画像表示
                 previewContainer.innerHTML = `
-                    <img src="${imageUrl}" alt="Generated Banner" class="preview-image" id="generatedImage">
+                    <img src="${imageUrl}" alt="Generated Banner Background" class="preview-image">
                 `;
                 
                 // アクションボタン表示
                 document.getElementById('actionButtons').style.display = 'flex';
                 
-                // 成功メッセージ
-                showToast('バナーを生成しました！', 'success');
-                
-                // 画像URLを保存（ダウンロード用）
-                window.currentImageUrl = imageUrl;
+                showToast('バナー背景を生成しました！', 'success');
                 
             } catch (error) {
                 console.error('生成エラー:', error);
@@ -872,15 +950,15 @@
         
         // 画像ダウンロード
         async function downloadImage() {
-            if (!window.currentImageUrl) return;
+            if (!currentImageUrl) return;
             
             try {
-                const response = await fetch(window.currentImageUrl);
+                const response = await fetch(currentImageUrl);
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `banner_${Date.now()}.png`;
+                a.download = `banner_background_${Date.now()}.png`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -890,6 +968,15 @@
             } catch (error) {
                 showToast('ダウンロードに失敗しました', 'error');
             }
+        }
+        
+        // プロンプトコピー
+        function copyPrompt() {
+            if (!currentPrompt) return;
+            
+            navigator.clipboard.writeText(currentPrompt).then(() => {
+                showToast('プロンプトをコピーしました', 'success');
+            });
         }
         
         // トースト表示
