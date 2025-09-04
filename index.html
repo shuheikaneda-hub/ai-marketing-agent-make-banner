@@ -679,8 +679,8 @@
     </div>
     
     <script>
-        // GAS Proxy URL (Gemini翻訳用)
-        const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbyzvQeN_uI-DiqynipRE1pem7fJRF_rvt30JHsuAuLH1-k-MDKkotVpukRAsW0lEEGa/exec';
+        // GAS Proxy URL
+        const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbxrZt7CjKOGFiDlQAZVjyMi3MUpEjAwam2B_QfX1UMu2SFP5sba63K5YiRLIkk96gFu-A/exec';
         
         // API管理
         let replicateKey = '';
@@ -839,7 +839,10 @@ ${formData.textSpace ? `テキストスペース: ${formData.textSpace}` : ''}
                     headers: {
                         'Content-Type': 'text/plain'
                     },
-                    body: JSON.stringify({ prompt: prompt })
+                    body: JSON.stringify({ 
+                        action: 'translate',
+                        prompt: prompt 
+                    })
                 });
                 
                 const result = await response.json();
@@ -885,38 +888,52 @@ ${formData.textSpace ? `テキストスペース: ${formData.textSpace}` : ''}
                 // サイズ取得
                 const [width, height] = formData.size.split('x').map(Number);
                 
-                // Replicate API呼び出し
+                // モデル設定
                 const model = models[formData.model];
-                const response = await fetch('https://api.replicate.com/v1/predictions', {
+                
+                // GAS経由でReplicate API呼び出し
+                const response = await fetch(GAS_PROXY_URL, {
                     method: 'POST',
+                    mode: 'cors',
                     headers: {
-                        'Authorization': `Token ${replicateKey}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'text/plain'
                     },
                     body: JSON.stringify({
-                        version: model.version,
-                        input: {
-                            prompt: englishPrompt,
-                            negative_prompt: 'text, letters, words, watermark, signature, logo',
-                            width: width,
-                            height: height,
-                            num_inference_steps: model.settings.num_inference_steps,
-                            guidance_scale: model.settings.guidance_scale
+                        action: 'replicate',
+                        token: replicateKey,
+                        endpoint: 'predictions',
+                        method: 'POST',
+                        body: {
+                            version: model.version,
+                            input: {
+                                prompt: englishPrompt,
+                                negative_prompt: 'text, letters, words, watermark, signature, logo',
+                                width: width,
+                                height: height,
+                                num_inference_steps: model.settings.num_inference_steps,
+                                guidance_scale: model.settings.guidance_scale
+                            }
                         }
                     })
                 });
                 
                 if (!response.ok) {
+                    throw new Error('Generation request failed');
+                }
+                
+                const result = await response.json();
+                
+                if (!result.success || !result.data) {
                     throw new Error('Generation failed');
                 }
                 
-                const prediction = await response.json();
+                const prediction = result.data;
                 
                 // ポーリングで結果を取得
-                let result = await pollPrediction(prediction.id);
+                let finalResult = await pollPrediction(prediction.id);
                 
-                if (result.status === 'succeeded' && result.output) {
-                    currentImageUrl = result.output[0];
+                if (finalResult.status === 'succeeded' && finalResult.output) {
+                    currentImageUrl = finalResult.output[0];
                     
                     // 画像表示
                     previewContainer.innerHTML = `
@@ -934,7 +951,7 @@ ${formData.textSpace ? `テキストスペース: ${formData.textSpace}` : ''}
                     document.getElementById('actionButtons').style.display = 'flex';
                     showToast('画像を生成しました！', 'success');
                 } else {
-                    throw new Error('Generation failed');
+                    throw new Error('Generation failed: ' + (finalResult.error || 'Unknown error'));
                 }
                 
             } catch (error) {
@@ -943,9 +960,12 @@ ${formData.textSpace ? `テキストスペース: ${formData.textSpace}` : ''}
                     <div class="preview-placeholder">
                         <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--danger);">❌</div>
                         <p style="color: var(--danger);">生成に失敗しました</p>
+                        <p style="font-size: 0.875rem; color: var(--gray-500); margin-top: 0.5rem;">
+                            ${error.message}
+                        </p>
                     </div>
                 `;
-                showToast('生成に失敗しました', 'error');
+                showToast('生成に失敗しました: ' + error.message, 'error');
             } finally {
                 generateBtn.disabled = false;
             }
@@ -957,23 +977,33 @@ ${formData.textSpace ? `テキストスペース: ${formData.textSpace}` : ''}
             let attempts = 0;
             
             while (attempts < maxAttempts) {
-                const response = await fetch(`https://api.replicate.com/v1/predictions/${id}`, {
+                const response = await fetch(GAS_PROXY_URL, {
+                    method: 'POST',
+                    mode: 'cors',
                     headers: {
-                        'Authorization': `Token ${replicateKey}`
-                    }
+                        'Content-Type': 'text/plain'
+                    },
+                    body: JSON.stringify({
+                        action: 'replicate',
+                        token: replicateKey,
+                        predictionId: id,
+                        method: 'GET'
+                    })
                 });
                 
                 const result = await response.json();
                 
-                if (result.status === 'succeeded' || result.status === 'failed') {
-                    return result;
+                if (result.success && result.data) {
+                    if (result.data.status === 'succeeded' || result.data.status === 'failed') {
+                        return result.data;
+                    }
                 }
                 
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise(resolve => setTimeout(resolve, 2000));
                 attempts++;
             }
             
-            throw new Error('Timeout');
+            throw new Error('Timeout waiting for image generation');
         }
         
         // 再生成
