@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>広告バナー生成ツール | Gemini 2.0 Flash Experimental</title>
+    <title>広告バナー生成ツール | Gemini 2.5 Flash Image</title>
     <style>
         * {
             margin: 0;
@@ -40,7 +40,7 @@
         
         body {
             font-family: 'Google Sans', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #4285f4 0%, #ea4335 50%, #fbbc04 100%);
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 50%, #fbbc04 100%);
             min-height: 100vh;
             color: var(--dark);
             line-height: 1.6;
@@ -88,6 +88,15 @@
         .logo-icon span:nth-child(3) { background: #fbbc04; }
         .logo-icon span:nth-child(4) { background: #34a853; }
         
+        .version-badge {
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
         /* メインコンテナ */
         .container {
             max-width: 1400px;
@@ -95,8 +104,8 @@
             padding: 2rem;
         }
         
-        /* API設定カード */
-        .api-setup-card {
+        /* インフォカード */
+        .info-card {
             background: var(--white);
             border-radius: var(--radius-xl);
             box-shadow: var(--shadow-lg);
@@ -104,13 +113,13 @@
             margin-bottom: 2rem;
         }
         
-        .api-setup-header {
+        .info-card-header {
             padding: 1.5rem;
             background: var(--gray-50);
             border-bottom: 1px solid var(--gray-200);
         }
         
-        .api-setup-body {
+        .info-card-body {
             padding: 1.5rem;
         }
         
@@ -428,7 +437,8 @@
                     <span></span>
                     <span></span>
                 </div>
-                <span>広告バナー生成ツール（Gemini 2.0 Flash）</span>
+                <span>広告バナー生成ツール</span>
+                <span class="version-badge">Gemini 2.5 Flash Image</span>
             </div>
         </div>
     </header>
@@ -436,20 +446,21 @@
     <!-- メインコンテンツ -->
     <main class="container">
         <!-- インフォメーション -->
-        <div class="api-setup-card">
-            <div class="api-setup-header">
-                <h2>🎨 Gemini 2.0 Flash Experimentalで画像生成</h2>
+        <div class="info-card">
+            <div class="info-card-header">
+                <h2>🎨 Gemini 2.5 Flash Imageで高品質バナー生成</h2>
                 <p style="color: var(--gray-700); margin-top: 0.5rem;">
-                    最新のGemini 2.0 Flashモデルを使用して、日本語で直接バナー背景を生成します
+                    Googleの最新画像生成AIを使用して、日本語で直接バナー背景を生成します
                 </p>
             </div>
-            <div class="api-setup-body">
+            <div class="info-card-body">
                 <div class="info-box">
                     <h4>📌 このツールの特徴</h4>
                     <p>
-                        • 日本語プロンプトに対応<br>
+                        • 日本語プロンプトに完全対応<br>
                         • テキストなし背景画像を生成<br>
-                        • GAS経由でGemini APIを使用<br>
+                        • 高速生成（10-15秒）<br>
+                        • GAS経由でセキュアに実行<br>
                         • 生成後はCanva等でテキスト追加
                     </p>
                 </div>
@@ -492,21 +503,21 @@
                             </label>
                             <div class="size-options">
                                 <div class="size-option">
-                                    <input type="radio" name="size" id="size-square" value="square" checked>
+                                    <input type="radio" name="size" id="size-square" value="1:1" checked>
                                     <label for="size-square" class="size-option-label">
                                         <div>正方形</div>
                                         <small>Instagram投稿</small>
                                     </label>
                                 </div>
                                 <div class="size-option">
-                                    <input type="radio" name="size" id="size-portrait" value="portrait">
+                                    <input type="radio" name="size" id="size-portrait" value="9:16">
                                     <label for="size-portrait" class="size-option-label">
                                         <div>縦長</div>
                                         <small>ストーリーズ</small>
                                     </label>
                                 </div>
                                 <div class="size-option">
-                                    <input type="radio" name="size" id="size-landscape" value="landscape">
+                                    <input type="radio" name="size" id="size-landscape" value="16:9">
                                     <label for="size-landscape" class="size-option-label">
                                         <div>横長</div>
                                         <small>Facebook/X</small>
@@ -575,7 +586,7 @@
                             <span>バナー背景を生成</span>
                         </button>
                         <p style="text-align: center; margin-top: 0.5rem; font-size: 0.75rem; color: var(--gray-500);">
-                            Gemini 2.0 Flash Experimentalで生成
+                            Gemini 2.5 Flash Imageで高速生成
                         </p>
                     </form>
                 </div>
@@ -618,7 +629,7 @@
                     <div class="card-body">
                         <ol style="line-height: 1.8; font-size: 0.875rem;">
                             <li><strong>要件を入力</strong>：日本語で自由に記述</li>
-                            <li><strong>生成ボタンクリック</strong>：10-20秒で生成</li>
+                            <li><strong>生成ボタンクリック</strong>：10-15秒で生成</li>
                             <li><strong>画像をダウンロード</strong>：生成された背景を保存</li>
                             <li><strong>テキストを追加</strong>：
                                 <ul style="margin-top: 0.25rem; margin-left: 1.5rem;">
@@ -628,6 +639,15 @@
                                 </ul>
                             </li>
                         </ol>
+                        
+                        <div style="margin-top: 1rem; padding: 1rem; background: var(--gray-50); border-radius: var(--radius);">
+                            <h4 style="font-size: 0.875rem; margin-bottom: 0.5rem;">💡 生成のコツ</h4>
+                            <ul style="font-size: 0.75rem; color: var(--gray-700); line-height: 1.6;">
+                                <li>背景色、雰囲気、モチーフを具体的に</li>
+                                <li>「文字なし」「テキストスペースあり」と明記</li>
+                                <li>参考にしたい広告のイメージがあれば記載</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -643,8 +663,8 @@
         // GAS Proxy URL
         const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbxrZt7CjKOGFiDlQAZVjyMi3MUpEjAwam2B_QfX1UMu2SFP5sba63K5YiRLIkk96gFu-A/exec';
         
-        // 現在の画像URL
-        let currentImageUrl = '';
+        // 現在の画像データ
+        let currentImageData = null;
         
         // フォーム送信
         document.getElementById('bannerForm').addEventListener('submit', async (e) => {
@@ -673,17 +693,10 @@
                     <div class="spinner"></div>
                     <p>画像を生成中...</p>
                     <p style="font-size: 0.75rem; color: var(--gray-500); margin-top: 0.5rem;">
-                        10-20秒かかります
+                        Gemini 2.5 Flash Imageで生成中（10-15秒）
                     </p>
                 </div>
             `;
-            
-            // サイズマッピング
-            const sizeMap = {
-                'square': '正方形（1:1）',
-                'portrait': '縦長（9:16）',
-                'landscape': '横長（16:9）'
-            };
             
             // プロンプト作成
             const prompt = `
@@ -692,19 +705,20 @@
 【要件】
 - 用途：${formData.purpose}
 - デザイン要素：${formData.designElements}
-- サイズ：${sizeMap[formData.size]}
-- スタイル：${formData.style}
+- アスペクト比：${formData.size}
+- スタイル：${formData.style}スタイル
 ${formData.mainColor ? `- メインカラー：${formData.mainColor}` : ''}
 ${formData.textSpace ? `- テキスト配置：${formData.textSpace}` : ''}
 
 【重要な指示】
-- 文字やテキストは一切含めない（背景のみ）
-- 広告用の高品質なデザイン
-- ${formData.textSpace || '中央に十分なテキストスペースを確保'}
-- プロフェッショナルな仕上がり`;
+- 文字やテキストは一切含めない（背景画像のみ）
+- 広告バナー用の高品質なデザイン
+- ${formData.textSpace || '中央にテキスト用の十分なスペースを確保'}
+- プロフェッショナルな仕上がり
+- 日本の広告デザインのトレンドを意識`;
             
             try {
-                // GAS経由でGemini APIを呼び出し
+                // GAS経由でGemini 2.5 Flash Image APIを呼び出し
                 const response = await fetch(GAS_PROXY_URL, {
                     method: 'POST',
                     mode: 'cors',
@@ -712,19 +726,21 @@ ${formData.textSpace ? `- テキスト配置：${formData.textSpace}` : ''}
                         'Content-Type': 'text/plain'
                     },
                     body: JSON.stringify({
-                        action: 'generateImage',
-                        prompt: prompt
+                        action: 'generateImageGemini25',
+                        prompt: prompt,
+                        aspectRatio: formData.size
                     })
                 });
                 
                 const result = await response.json();
                 
-                if (result.success && result.imageUrl) {
-                    currentImageUrl = result.imageUrl;
+                if (result.success && result.imageData) {
+                    currentImageData = result.imageData;
                     
                     // 画像表示
+                    const imageUrl = `data:image/png;base64,${result.imageData}`;
                     previewContainer.innerHTML = `
-                        <img src="${currentImageUrl}" alt="Generated Banner" class="preview-image">
+                        <img src="${imageUrl}" alt="Generated Banner" class="preview-image">
                     `;
                     
                     document.getElementById('actionButtons').style.display = 'flex';
@@ -756,31 +772,28 @@ ${formData.textSpace ? `- テキスト配置：${formData.textSpace}` : ''}
         }
         
         // 画像ダウンロード
-        async function downloadImage() {
-            if (!currentImageUrl) return;
+        function downloadImage() {
+            if (!currentImageData) return;
             
             try {
-                // base64画像の場合
-                if (currentImageUrl.startsWith('data:')) {
-                    const link = document.createElement('a');
-                    link.href = currentImageUrl;
-                    link.download = `banner_${Date.now()}.png`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                } else {
-                    // URL画像の場合
-                    const response = await fetch(currentImageUrl);
-                    const blob = await response.blob();
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = `banner_${Date.now()}.png`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
+                // Base64をBlobに変換
+                const byteCharacters = atob(currentImageData);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
                 }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], {type: 'image/png'});
+                
+                // ダウンロード
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `banner_${Date.now()}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
                 
                 showToast('ダウンロードを開始しました', 'success');
             } catch (error) {
