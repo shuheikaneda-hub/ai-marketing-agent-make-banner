@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>広告バナー生成ツール | Replicate + Gemini</title>
+    <title>広告バナー生成ツール | Gemini 2.0 Flash Experimental</title>
     <style>
         * {
             margin: 0;
@@ -12,37 +12,35 @@
         }
         
         :root {
-            --primary: #7c3aed;
-            --primary-dark: #6d28d9;
-            --primary-light: #ede9fe;
-            --secondary: #ec4899;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --info: #3b82f6;
-            --dark: #1e293b;
-            --gray-900: #334155;
-            --gray-700: #475569;
-            --gray-500: #64748b;
-            --gray-400: #94a3b8;
-            --gray-300: #cbd5e1;
-            --gray-200: #e2e8f0;
-            --gray-100: #f1f5f9;
-            --gray-50: #f8fafc;
+            --primary: #4285f4;
+            --primary-dark: #1a73e8;
+            --primary-light: #e8f0fe;
+            --secondary: #ea4335;
+            --success: #34a853;
+            --warning: #fbbc04;
+            --danger: #ea4335;
+            --dark: #202124;
+            --gray-900: #3c4043;
+            --gray-700: #5f6368;
+            --gray-500: #80868b;
+            --gray-400: #9aa0a6;
+            --gray-300: #dadce0;
+            --gray-200: #e8eaed;
+            --gray-100: #f1f3f4;
+            --gray-50: #f8f9fa;
             --white: #ffffff;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-            --radius: 0.5rem;
-            --radius-lg: 0.75rem;
-            --radius-xl: 1rem;
+            --shadow-sm: 0 1px 2px 0 rgb(60 64 67 / 0.3), 0 1px 3px 1px rgb(60 64 67 / 0.15);
+            --shadow: 0 1px 3px 0 rgb(60 64 67 / 0.3), 0 4px 8px 3px rgb(60 64 67 / 0.15);
+            --shadow-md: 0 1px 3px 0 rgb(60 64 67 / 0.3), 0 4px 8px 3px rgb(60 64 67 / 0.15);
+            --shadow-lg: 0 1px 3px 0 rgb(60 64 67 / 0.3), 0 6px 10px 4px rgb(60 64 67 / 0.15);
+            --radius: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-            background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+            font-family: 'Google Sans', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #4285f4 0%, #ea4335 50%, #fbbc04 100%);
             min-height: 100vh;
             color: var(--dark);
             line-height: 1.6;
@@ -51,7 +49,6 @@
         /* ヘッダー */
         .header {
             background: var(--white);
-            border-bottom: 1px solid var(--gray-200);
             padding: 1rem 0;
             box-shadow: var(--shadow-sm);
         }
@@ -67,40 +64,29 @@
         
         .logo {
             font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
         }
         
-        .api-status-container {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-        
-        .api-status {
+        .logo-icon {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--gray-50);
-            border-radius: var(--radius);
-            font-size: 0.875rem;
+            gap: 0.25rem;
         }
         
-        .api-status.connected {
-            background: #dcfce7;
-            color: #166534;
+        .logo-icon span {
+            display: inline-block;
+            width: 8px;
+            height: 32px;
+            border-radius: 2px;
         }
         
-        .api-status.disconnected {
-            background: #fee2e2;
-            color: #991b1b;
-        }
+        .logo-icon span:nth-child(1) { background: #4285f4; }
+        .logo-icon span:nth-child(2) { background: #ea4335; }
+        .logo-icon span:nth-child(3) { background: #fbbc04; }
+        .logo-icon span:nth-child(4) { background: #34a853; }
         
         /* メインコンテナ */
         .container {
@@ -120,21 +106,12 @@
         
         .api-setup-header {
             padding: 1.5rem;
-            background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 100%);
+            background: var(--gray-50);
             border-bottom: 1px solid var(--gray-200);
         }
         
         .api-setup-body {
             padding: 1.5rem;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
-        
-        @media (max-width: 768px) {
-            .api-setup-body {
-                grid-template-columns: 1fr;
-            }
         }
         
         /* グリッドレイアウト */
@@ -154,17 +131,17 @@
         .card {
             background: var(--white);
             border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow);
             overflow: hidden;
         }
         
         .card-header {
             padding: 1.5rem;
-            background: linear-gradient(135deg, #f3e8ff15 0%, #fce7f315 100%);
+            background: var(--gray-50);
             border-bottom: 1px solid var(--gray-200);
             font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--gray-900);
+            font-weight: 500;
+            color: var(--dark);
         }
         
         .card-body {
@@ -178,10 +155,10 @@
         
         .form-label {
             display: block;
-            font-weight: 600;
+            font-weight: 500;
             color: var(--gray-700);
             margin-bottom: 0.5rem;
-            font-size: 0.9rem;
+            font-size: 0.875rem;
         }
         
         .required {
@@ -199,7 +176,7 @@
         .form-select {
             width: 100%;
             padding: 0.75rem;
-            border: 2px solid var(--gray-200);
+            border: 1px solid var(--gray-300);
             border-radius: var(--radius);
             font-size: 1rem;
             transition: all 0.2s;
@@ -211,7 +188,7 @@
         .form-select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
         }
         
         .form-textarea {
@@ -221,60 +198,9 @@
         }
         
         .form-helper {
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             color: var(--gray-500);
             margin-top: 0.25rem;
-        }
-        
-        /* パスワード入力 */
-        .password-input-group {
-            position: relative;
-        }
-        
-        .password-toggle {
-            position: absolute;
-            right: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--gray-500);
-            cursor: pointer;
-            padding: 0.25rem;
-        }
-        
-        /* モデル選択 */
-        .model-options {
-            display: grid;
-            gap: 0.75rem;
-        }
-        
-        .model-option {
-            padding: 1rem;
-            border: 2px solid var(--gray-200);
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .model-option:hover {
-            border-color: var(--primary);
-            background: var(--primary-light);
-        }
-        
-        .model-option.selected {
-            border-color: var(--primary);
-            background: var(--primary-light);
-        }
-        
-        .model-name {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        
-        .model-desc {
-            font-size: 0.875rem;
-            color: var(--gray-600);
         }
         
         /* サイズ選択 */
@@ -297,7 +223,7 @@
         .size-option-label {
             display: block;
             padding: 1rem;
-            border: 2px solid var(--gray-200);
+            border: 2px solid var(--gray-300);
             border-radius: var(--radius);
             text-align: center;
             transition: all 0.2s;
@@ -308,14 +234,50 @@
             border-color: var(--primary);
             background: var(--primary-light);
             color: var(--primary-dark);
-            font-weight: 600;
+        }
+        
+        /* スタイル選択 */
+        .style-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        
+        @media (max-width: 480px) {
+            .style-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .style-option {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .style-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+        
+        .style-label {
+            display: block;
+            padding: 0.75rem;
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius);
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .style-option input[type="radio"]:checked + .style-label {
+            border-color: var(--primary);
+            background: var(--primary-light);
         }
         
         /* ボタン */
         .btn {
             padding: 0.75rem 1.5rem;
             border-radius: var(--radius);
-            font-weight: 600;
+            font-weight: 500;
             font-size: 1rem;
             border: none;
             cursor: pointer;
@@ -327,13 +289,13 @@
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+            background: var(--primary);
             color: white;
         }
         
         .btn-primary:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
+            background: var(--primary-dark);
+            box-shadow: var(--shadow-sm);
         }
         
         .btn-primary:disabled {
@@ -344,7 +306,11 @@
         .btn-secondary {
             background: var(--white);
             color: var(--primary);
-            border: 2px solid var(--primary);
+            border: 1px solid var(--gray-300);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--gray-50);
         }
         
         .btn-block {
@@ -365,14 +331,14 @@
         
         .preview-placeholder {
             text-align: center;
-            color: var(--gray-400);
+            color: var(--gray-500);
         }
         
         .preview-image {
             max-width: 100%;
             max-height: 600px;
             border-radius: var(--radius);
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow);
         }
         
         /* ローディング */
@@ -393,7 +359,7 @@
         .spinner {
             width: 48px;
             height: 48px;
-            border: 3px solid var(--gray-200);
+            border: 4px solid var(--gray-200);
             border-top-color: var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -406,16 +372,21 @@
         
         /* インフォボックス */
         .info-box {
-            background: #f3e8ff;
-            border: 1px solid #7c3aed;
+            background: var(--primary-light);
             border-radius: var(--radius);
             padding: 1rem;
             margin-bottom: 1rem;
         }
         
         .info-box h4 {
-            color: #6d28d9;
+            color: var(--primary-dark);
             margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .info-box p {
+            font-size: 0.875rem;
+            color: var(--gray-700);
         }
         
         /* トースト */
@@ -427,7 +398,7 @@
             color: white;
             padding: 1rem 1.5rem;
             border-radius: var(--radius);
-            box-shadow: var(--shadow-xl);
+            box-shadow: var(--shadow-lg);
             transform: translateX(400px);
             transition: transform 0.3s;
             z-index: 1000;
@@ -451,54 +422,36 @@
     <header class="header">
         <div class="header-container">
             <div class="logo">
-                <span>🎨</span>
-                <span>広告バナー生成ツール（Replicate版）</span>
-            </div>
-            <div class="api-status-container">
-                <div class="api-status" id="replicateStatus">
-                    <span>Replicate:</span>
-                    <span id="replicateStatusText">未設定</span>
+                <div class="logo-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
                 </div>
+                <span>広告バナー生成ツール（Gemini 2.0 Flash）</span>
             </div>
         </div>
     </header>
 
     <!-- メインコンテンツ -->
     <main class="container">
-        <!-- API設定 -->
-        <div class="api-setup-card" id="apiSetupCard">
+        <!-- インフォメーション -->
+        <div class="api-setup-card">
             <div class="api-setup-header">
-                <h2>🔐 APIキー設定</h2>
-                <p style="color: var(--gray-700); margin-top: 0.5rem;">Replicate APIキーを設定してください</p>
+                <h2>🎨 Gemini 2.0 Flash Experimentalで画像生成</h2>
+                <p style="color: var(--gray-700); margin-top: 0.5rem;">
+                    最新のGemini 2.0 Flashモデルを使用して、日本語で直接バナー背景を生成します
+                </p>
             </div>
             <div class="api-setup-body">
-                <div>
-                    <div class="form-group">
-                        <label class="form-label">Replicate APIトークン</label>
-                        <div class="password-input-group">
-                            <input type="password" class="form-input" id="replicateKeyInput" placeholder="r8_...">
-                            <button class="password-toggle" onclick="togglePasswordVisibility('replicateKeyInput')">👁️</button>
-                        </div>
-                        <div class="form-helper">
-                            <a href="https://replicate.com/account/api-tokens" target="_blank" style="color: var(--primary);">
-                                Replicateダッシュボード
-                            </a>
-                            でAPIトークンを取得
-                        </div>
-                    </div>
-                    <button class="btn btn-primary btn-block" onclick="saveApiKeys()">
-                        APIキーを保存
-                    </button>
-                </div>
-                <div>
-                    <div class="info-box">
-                        <h4>💡 Replicate料金</h4>
-                        <p>
-                            • 約$0.05/画像（5円程度）<br>
-                            • 従量課金制<br>
-                            • 無料トライアルあり
-                        </p>
-                    </div>
+                <div class="info-box">
+                    <h4>📌 このツールの特徴</h4>
+                    <p>
+                        • 日本語プロンプトに対応<br>
+                        • テキストなし背景画像を生成<br>
+                        • GAS経由でGemini APIを使用<br>
+                        • 生成後はCanva等でテキスト追加
+                    </p>
                 </div>
             </div>
         </div>
@@ -511,44 +464,25 @@
                 </div>
                 <div class="card-body">
                     <form id="bannerForm">
-                        <!-- モデル選択 -->
-                        <div class="form-group">
-                            <label class="form-label">
-                                生成モデル <span class="required">*</span>
-                            </label>
-                            <div class="model-options">
-                                <div class="model-option selected" onclick="selectModel(this, 'sdxl')" data-model="sdxl">
-                                    <div class="model-name">SDXL（汎用）</div>
-                                    <div class="model-desc">高品質・バランス型、広告向け</div>
-                                </div>
-                                <div class="model-option" onclick="selectModel(this, 'anime')" data-model="anime">
-                                    <div class="model-name">Animagine XL（アニメ風）</div>
-                                    <div class="model-desc">日本のアニメ・マンガ風、キャラクター向け</div>
-                                </div>
-                                <div class="model-option" onclick="selectModel(this, 'realistic')" data-model="realistic">
-                                    <div class="model-name">Realistic Vision（写実的）</div>
-                                    <div class="model-desc">リアルな写真風、商品広告向け</div>
-                                </div>
-                            </div>
-                            <input type="hidden" id="selectedModel" value="sdxl">
-                        </div>
-                        
                         <!-- 用途 -->
                         <div class="form-group">
                             <label class="form-label">
                                 バナーの用途 <span class="required">*</span>
                             </label>
                             <input type="text" class="form-input" id="purpose" required
-                                   placeholder="例：化粧品のセール広告">
+                                   placeholder="例：化粧品のセール広告、新商品のプロモーション">
                         </div>
                         
-                        <!-- 背景・デザイン -->
+                        <!-- 背景デザイン -->
                         <div class="form-group">
                             <label class="form-label">
                                 背景・デザイン要素 <span class="required">*</span>
                             </label>
                             <textarea class="form-textarea" id="designElements" required
-                                      placeholder="例：ピンクのグラデーション背景、キラキラエフェクト、花のモチーフ"></textarea>
+                                      placeholder="例：ピンクとゴールドのグラデーション背景、キラキラした光の演出、花のモチーフ"></textarea>
+                            <div class="form-helper">
+                                具体的に記述するほど、イメージに近い結果が得られます
+                            </div>
                         </div>
                         
                         <!-- サイズ選択 -->
@@ -558,24 +492,24 @@
                             </label>
                             <div class="size-options">
                                 <div class="size-option">
-                                    <input type="radio" name="size" id="size-square" value="1024x1024" checked>
+                                    <input type="radio" name="size" id="size-square" value="square" checked>
                                     <label for="size-square" class="size-option-label">
                                         <div>正方形</div>
-                                        <small>1024×1024</small>
+                                        <small>Instagram投稿</small>
                                     </label>
                                 </div>
                                 <div class="size-option">
-                                    <input type="radio" name="size" id="size-portrait" value="768x1344">
+                                    <input type="radio" name="size" id="size-portrait" value="portrait">
                                     <label for="size-portrait" class="size-option-label">
                                         <div>縦長</div>
-                                        <small>768×1344</small>
+                                        <small>ストーリーズ</small>
                                     </label>
                                 </div>
                                 <div class="size-option">
-                                    <input type="radio" name="size" id="size-landscape" value="1344x768">
+                                    <input type="radio" name="size" id="size-landscape" value="landscape">
                                     <label for="size-landscape" class="size-option-label">
                                         <div>横長</div>
-                                        <small>1344×768</small>
+                                        <small>Facebook/X</small>
                                     </label>
                                 </div>
                             </div>
@@ -584,38 +518,64 @@
                         <!-- スタイル -->
                         <div class="form-group">
                             <label class="form-label">
-                                スタイル <span class="required">*</span>
+                                デザインスタイル <span class="required">*</span>
                             </label>
-                            <select class="form-select" id="style" required>
-                                <option value="">選択してください</option>
-                                <option value="vibrant">鮮やか・ポップ</option>
-                                <option value="elegant">エレガント・高級感</option>
-                                <option value="minimal">ミニマル・シンプル</option>
-                                <option value="kawaii">かわいい・日本風</option>
-                                <option value="business">ビジネス・信頼感</option>
-                                <option value="retro">レトロ・ヴィンテージ</option>
-                            </select>
+                            <div class="style-grid">
+                                <div class="style-option">
+                                    <input type="radio" name="style" id="style-modern" value="モダン" checked>
+                                    <label for="style-modern" class="style-label">モダン</label>
+                                </div>
+                                <div class="style-option">
+                                    <input type="radio" name="style" id="style-pop" value="ポップ">
+                                    <label for="style-pop" class="style-label">ポップ</label>
+                                </div>
+                                <div class="style-option">
+                                    <input type="radio" name="style" id="style-elegant" value="エレガント">
+                                    <label for="style-elegant" class="style-label">エレガント</label>
+                                </div>
+                                <div class="style-option">
+                                    <input type="radio" name="style" id="style-minimal" value="ミニマル">
+                                    <label for="style-minimal" class="style-label">ミニマル</label>
+                                </div>
+                                <div class="style-option">
+                                    <input type="radio" name="style" id="style-kawaii" value="かわいい">
+                                    <label for="style-kawaii" class="style-label">かわいい</label>
+                                </div>
+                                <div class="style-option">
+                                    <input type="radio" name="style" id="style-business" value="ビジネス">
+                                    <label for="style-business" class="style-label">ビジネス</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- カラー -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                メインカラー <span class="optional">(任意)</span>
+                            </label>
+                            <input type="text" class="form-input" id="mainColor"
+                                   placeholder="例：ピンクとゴールド、青と白、パステルカラー">
                         </div>
                         
                         <!-- テキストスペース -->
                         <div class="form-group">
                             <label class="form-label">
-                                テキスト配置予定 <span class="optional">(任意)</span>
+                                テキスト配置エリア <span class="optional">(任意)</span>
                             </label>
                             <input type="text" class="form-input" id="textSpace"
-                                   placeholder="例：上部に大きくキャッチコピー用スペース">
+                                   placeholder="例：上部中央に大きくキャッチコピー用のスペース">
                             <div class="form-helper">
-                                テキスト用の空白スペースを確保します
+                                後からテキストを追加する際の配置を指定
                             </div>
                         </div>
                         
                         <!-- 生成ボタン -->
-                        <button type="submit" class="btn btn-primary btn-block" id="generateBtn" disabled>
+                        <button type="submit" class="btn btn-primary btn-block" id="generateBtn">
                             <span>✨</span>
                             <span>バナー背景を生成</span>
                         </button>
-                        <p style="text-align: center; margin-top: 0.5rem; font-size: 0.875rem; color: var(--gray-500);">
-                            Gemini翻訳 → Replicate生成（約5円/枚）
+                        <p style="text-align: center; margin-top: 0.5rem; font-size: 0.75rem; color: var(--gray-500);">
+                            Gemini 2.0 Flash Experimentalで生成
                         </p>
                     </form>
                 </div>
@@ -630,8 +590,11 @@
                     <div class="card-body">
                         <div class="preview-container" id="previewContainer">
                             <div class="preview-placeholder">
-                                <div style="font-size: 4rem; margin-bottom: 1rem;">🖼️</div>
+                                <div style="font-size: 3rem; margin-bottom: 1rem;">🖼️</div>
                                 <p>生成されたバナー背景がここに表示されます</p>
+                                <p style="font-size: 0.875rem; color: var(--gray-500); margin-top: 0.5rem;">
+                                    テキストは後から追加してください
+                                </p>
                             </div>
                         </div>
                         
@@ -644,28 +607,26 @@
                                 🔄 再生成
                             </button>
                         </div>
-                        
-                        <!-- 生成情報 -->
-                        <div id="generationInfo" style="display: none; margin-top: 1rem; padding: 1rem; background: var(--gray-50); border-radius: var(--radius);">
-                            <h4 style="margin-bottom: 0.5rem; font-size: 0.9rem;">生成情報</h4>
-                            <div id="generationDetails" style="font-size: 0.875rem; color: var(--gray-600);"></div>
-                        </div>
                     </div>
                 </div>
                 
-                <!-- 使い方 -->
+                <!-- 使い方ガイド -->
                 <div class="card" style="margin-top: 2rem;">
                     <div class="card-header">
-                        📚 使い方
+                        📚 使い方ガイド
                     </div>
                     <div class="card-body">
-                        <ol style="line-height: 1.8;">
-                            <li>Replicate APIトークンを設定</li>
-                            <li>モデルを選択（用途に応じて）</li>
-                            <li>日本語で要件を入力</li>
-                            <li>生成ボタンをクリック</li>
-                            <li>画像をダウンロード</li>
-                            <li>Canva等でテキストを追加</li>
+                        <ol style="line-height: 1.8; font-size: 0.875rem;">
+                            <li><strong>要件を入力</strong>：日本語で自由に記述</li>
+                            <li><strong>生成ボタンクリック</strong>：10-20秒で生成</li>
+                            <li><strong>画像をダウンロード</strong>：生成された背景を保存</li>
+                            <li><strong>テキストを追加</strong>：
+                                <ul style="margin-top: 0.25rem; margin-left: 1.5rem;">
+                                    <li><a href="https://www.canva.com/" target="_blank" style="color: var(--primary);">Canva</a>（簡単・無料）</li>
+                                    <li><a href="https://www.figma.com/" target="_blank" style="color: var(--primary);">Figma</a>（プロ向け）</li>
+                                    <li>Photoshop / Illustrator</li>
+                                </ul>
+                            </li>
                         </ol>
                     </div>
                 </div>
@@ -682,180 +643,24 @@
         // GAS Proxy URL
         const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbxrZt7CjKOGFiDlQAZVjyMi3MUpEjAwam2B_QfX1UMu2SFP5sba63K5YiRLIkk96gFu-A/exec';
         
-        // API管理
-        let replicateKey = '';
+        // 現在の画像URL
         let currentImageUrl = '';
-        let selectedModelType = 'sdxl';
-        
-        // モデル設定
-        const models = {
-            sdxl: {
-                version: 'stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b',
-                name: 'SDXL',
-                settings: {
-                    num_inference_steps: 25,
-                    guidance_scale: 7.5
-                }
-            },
-            anime: {
-                version: 'cagliostrolab/animagine-xl-3.1:1449e5b0232d4e1900788d6a2f6b5ca21e36757f8af7306db7c8e8ad90d9afba',
-                name: 'Animagine XL 3.1',
-                settings: {
-                    num_inference_steps: 28,
-                    guidance_scale: 7
-                }
-            },
-            realistic: {
-                version: 'stability-ai/stable-diffusion:ac732df83cea7fff18b8472768c88ad041fa750ff7682a21affe81863cbe77e4',
-                name: 'Realistic Vision',
-                settings: {
-                    num_inference_steps: 30,
-                    guidance_scale: 7.5
-                }
-            }
-        };
-        
-        // 初期化
-        document.addEventListener('DOMContentLoaded', () => {
-            checkApiKeys();
-        });
-        
-        // APIキーチェック
-        function checkApiKeys() {
-            const savedReplicateKey = localStorage.getItem('replicate_api_key');
-            
-            if (savedReplicateKey) {
-                replicateKey = savedReplicateKey;
-                updateApiStatus();
-                document.getElementById('generateBtn').disabled = false;
-                document.getElementById('apiSetupCard').style.display = 'none';
-            } else {
-                updateApiStatus();
-                document.getElementById('generateBtn').disabled = true;
-            }
-        }
-        
-        // APIステータス更新
-        function updateApiStatus() {
-            const replicateStatus = document.getElementById('replicateStatus');
-            const replicateStatusText = document.getElementById('replicateStatusText');
-            
-            if (replicateKey) {
-                replicateStatus.className = 'api-status connected';
-                replicateStatusText.textContent = '接続済み';
-            } else {
-                replicateStatus.className = 'api-status disconnected';
-                replicateStatusText.textContent = '未設定';
-            }
-        }
-        
-        // パスワード表示切り替え
-        function togglePasswordVisibility(inputId) {
-            const input = document.getElementById(inputId);
-            input.type = input.type === 'password' ? 'text' : 'password';
-        }
-        
-        // APIキー保存
-        function saveApiKeys() {
-            const replicateInput = document.getElementById('replicateKeyInput').value.trim();
-            
-            if (!replicateInput) {
-                showToast('APIトークンを入力してください', 'error');
-                return;
-            }
-            
-            localStorage.setItem('replicate_api_key', replicateInput);
-            replicateKey = replicateInput;
-            
-            document.getElementById('replicateKeyInput').value = '';
-            updateApiStatus();
-            document.getElementById('generateBtn').disabled = false;
-            document.getElementById('apiSetupCard').style.display = 'none';
-            
-            showToast('APIキーを保存しました', 'success');
-        }
-        
-        // モデル選択
-        function selectModel(element, modelType) {
-            document.querySelectorAll('.model-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            element.classList.add('selected');
-            selectedModelType = modelType;
-            document.getElementById('selectedModel').value = modelType;
-        }
         
         // フォーム送信
         document.getElementById('bannerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            if (!replicateKey) {
-                showToast('APIキーを設定してください', 'error');
-                return;
-            }
-            
             const formData = {
-                model: selectedModelType,
                 purpose: document.getElementById('purpose').value,
                 designElements: document.getElementById('designElements').value,
                 size: document.querySelector('input[name="size"]:checked').value,
-                style: document.getElementById('style').value,
+                style: document.querySelector('input[name="style"]:checked').value,
+                mainColor: document.getElementById('mainColor').value,
                 textSpace: document.getElementById('textSpace').value
             };
             
             await generateBanner(formData);
         });
-        
-        // 日本語プロンプトを英語に翻訳
-        async function translateToEnglish(formData) {
-            const styleMap = {
-                'vibrant': 'vibrant and colorful pop style',
-                'elegant': 'elegant and luxurious style',
-                'minimal': 'minimal and clean style',
-                'kawaii': 'cute Japanese kawaii style',
-                'business': 'professional business style',
-                'retro': 'retro vintage style'
-            };
-            
-            const prompt = `
-以下の日本語の要件を、Stable Diffusion用の英語プロンプトに翻訳してください。
-
-用途: ${formData.purpose}
-デザイン要素: ${formData.designElements}
-スタイル: ${styleMap[formData.style]}
-${formData.textSpace ? `テキストスペース: ${formData.textSpace}` : ''}
-
-重要: 
-- "NO TEXT, no letters, no words"を必ず含める
-- 広告バナー背景として適切な構成
-- 高品質を示す語句を追加
-
-英語プロンプトのみ出力してください。`;
-            
-            try {
-                const response = await fetch(GAS_PROXY_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'text/plain'
-                    },
-                    body: JSON.stringify({ 
-                        action: 'translate',
-                        prompt: prompt 
-                    })
-                });
-                
-                const result = await response.json();
-                if (result.success) {
-                    return result.data.candidates[0].content.parts[0].text.trim();
-                }
-            } catch (error) {
-                console.error('翻訳エラー:', error);
-            }
-            
-            // フォールバック
-            return `advertising banner background, ${styleMap[formData.style]}, NO TEXT, no letters, high quality, professional design`;
-        }
         
         // バナー生成
         async function generateBanner(formData) {
@@ -866,32 +671,40 @@ ${formData.textSpace ? `テキストスペース: ${formData.textSpace}` : ''}
             previewContainer.innerHTML = `
                 <div class="loading-overlay">
                     <div class="spinner"></div>
-                    <p>プロンプトを翻訳中...</p>
+                    <p>画像を生成中...</p>
+                    <p style="font-size: 0.75rem; color: var(--gray-500); margin-top: 0.5rem;">
+                        10-20秒かかります
+                    </p>
                 </div>
             `;
             
+            // サイズマッピング
+            const sizeMap = {
+                'square': '正方形（1:1）',
+                'portrait': '縦長（9:16）',
+                'landscape': '横長（16:9）'
+            };
+            
+            // プロンプト作成
+            const prompt = `
+広告バナーの背景画像を生成してください。
+
+【要件】
+- 用途：${formData.purpose}
+- デザイン要素：${formData.designElements}
+- サイズ：${sizeMap[formData.size]}
+- スタイル：${formData.style}
+${formData.mainColor ? `- メインカラー：${formData.mainColor}` : ''}
+${formData.textSpace ? `- テキスト配置：${formData.textSpace}` : ''}
+
+【重要な指示】
+- 文字やテキストは一切含めない（背景のみ）
+- 広告用の高品質なデザイン
+- ${formData.textSpace || '中央に十分なテキストスペースを確保'}
+- プロフェッショナルな仕上がり`;
+            
             try {
-                // 翻訳
-                const englishPrompt = await translateToEnglish(formData);
-                
-                // ローディング更新
-                previewContainer.innerHTML = `
-                    <div class="loading-overlay">
-                        <div class="spinner"></div>
-                        <p>画像を生成中...</p>
-                        <p style="font-size: 0.875rem; color: var(--gray-500); margin-top: 0.5rem;">
-                            約15-30秒かかります
-                        </p>
-                    </div>
-                `;
-                
-                // サイズ取得
-                const [width, height] = formData.size.split('x').map(Number);
-                
-                // モデル設定
-                const model = models[formData.model];
-                
-                // GAS経由でReplicate API呼び出し
+                // GAS経由でGemini APIを呼び出し
                 const response = await fetch(GAS_PROXY_URL, {
                     method: 'POST',
                     mode: 'cors',
@@ -899,59 +712,25 @@ ${formData.textSpace ? `テキストスペース: ${formData.textSpace}` : ''}
                         'Content-Type': 'text/plain'
                     },
                     body: JSON.stringify({
-                        action: 'replicate',
-                        token: replicateKey,
-                        endpoint: 'predictions',
-                        method: 'POST',
-                        body: {
-                            version: model.version,
-                            input: {
-                                prompt: englishPrompt,
-                                negative_prompt: 'text, letters, words, watermark, signature, logo',
-                                width: width,
-                                height: height,
-                                num_inference_steps: model.settings.num_inference_steps,
-                                guidance_scale: model.settings.guidance_scale
-                            }
-                        }
+                        action: 'generateImage',
+                        prompt: prompt
                     })
                 });
                 
-                if (!response.ok) {
-                    throw new Error('Generation request failed');
-                }
-                
                 const result = await response.json();
                 
-                if (!result.success || !result.data) {
-                    throw new Error('Generation failed');
-                }
-                
-                const prediction = result.data;
-                
-                // ポーリングで結果を取得
-                let finalResult = await pollPrediction(prediction.id);
-                
-                if (finalResult.status === 'succeeded' && finalResult.output) {
-                    currentImageUrl = finalResult.output[0];
+                if (result.success && result.imageUrl) {
+                    currentImageUrl = result.imageUrl;
                     
                     // 画像表示
                     previewContainer.innerHTML = `
                         <img src="${currentImageUrl}" alt="Generated Banner" class="preview-image">
                     `;
                     
-                    // 情報表示
-                    document.getElementById('generationInfo').style.display = 'block';
-                    document.getElementById('generationDetails').innerHTML = `
-                        モデル: ${model.name}<br>
-                        サイズ: ${formData.size}<br>
-                        生成時間: ${new Date().toLocaleTimeString()}
-                    `;
-                    
                     document.getElementById('actionButtons').style.display = 'flex';
-                    showToast('画像を生成しました！', 'success');
+                    showToast('バナー背景を生成しました！', 'success');
                 } else {
-                    throw new Error('Generation failed: ' + (finalResult.error || 'Unknown error'));
+                    throw new Error(result.error || '生成に失敗しました');
                 }
                 
             } catch (error) {
@@ -960,50 +739,15 @@ ${formData.textSpace ? `テキストスペース: ${formData.textSpace}` : ''}
                     <div class="preview-placeholder">
                         <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--danger);">❌</div>
                         <p style="color: var(--danger);">生成に失敗しました</p>
-                        <p style="font-size: 0.875rem; color: var(--gray-500); margin-top: 0.5rem;">
+                        <p style="font-size: 0.75rem; color: var(--gray-500); margin-top: 0.5rem;">
                             ${error.message}
                         </p>
                     </div>
                 `;
-                showToast('生成に失敗しました: ' + error.message, 'error');
+                showToast('生成に失敗しました', 'error');
             } finally {
                 generateBtn.disabled = false;
             }
-        }
-        
-        // 予測結果のポーリング
-        async function pollPrediction(id) {
-            const maxAttempts = 60;
-            let attempts = 0;
-            
-            while (attempts < maxAttempts) {
-                const response = await fetch(GAS_PROXY_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'text/plain'
-                    },
-                    body: JSON.stringify({
-                        action: 'replicate',
-                        token: replicateKey,
-                        predictionId: id,
-                        method: 'GET'
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success && result.data) {
-                    if (result.data.status === 'succeeded' || result.data.status === 'failed') {
-                        return result.data;
-                    }
-                }
-                
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                attempts++;
-            }
-            
-            throw new Error('Timeout waiting for image generation');
         }
         
         // 再生成
@@ -1016,16 +760,27 @@ ${formData.textSpace ? `テキストスペース: ${formData.textSpace}` : ''}
             if (!currentImageUrl) return;
             
             try {
-                const response = await fetch(currentImageUrl);
-                const blob = await response.blob();
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `banner_${Date.now()}.png`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+                // base64画像の場合
+                if (currentImageUrl.startsWith('data:')) {
+                    const link = document.createElement('a');
+                    link.href = currentImageUrl;
+                    link.download = `banner_${Date.now()}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else {
+                    // URL画像の場合
+                    const response = await fetch(currentImageUrl);
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `banner_${Date.now()}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                }
                 
                 showToast('ダウンロードを開始しました', 'success');
             } catch (error) {
