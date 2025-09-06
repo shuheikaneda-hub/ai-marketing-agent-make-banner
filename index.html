@@ -778,7 +778,7 @@
     <script>
         // GAS Endpoint URL (デプロイ後のURLに置き換え)
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbzJrN_q3BUEzY-lCvbVlnMKVVALf-HpddIrAj6NmZoap3X-gKRrhnfmyQFOxftFeX2KSQ/exec';
-
+        
         // 現在の画像URL
         let currentImageUrl = '';
         
@@ -844,65 +844,26 @@
                 action: 'generateImage',
                 prompt: buildPrompt(),
                 strategy: {
-                    usp: document.getElementById('usp').value,
-                    appealAxis: document.getElementById('appealAxis').value,
-                    concept: document.getElementById('concept').value,
-                    designPattern: document.getElementById('designPattern').value,
-                    testPhase: document.getElementById('testPhase').value
+                    usp: document.getElementById('usp').value || '',
+                    appealAxis: document.getElementById('appealAxis').value || '',
+                    concept: document.getElementById('concept').value || '',
+                    designPattern: document.getElementById('designPattern').value || '',
+                    testPhase: document.getElementById('testPhase').value || ''
                 },
                 targetSegment: {
-                    segment: document.getElementById('targetSegment').value,
-                    insight: document.getElementById('insight').value
+                    segment: document.getElementById('targetSegment').value || '',
+                    insight: document.getElementById('insight').value || ''
                 },
                 platform: {
                     name: getSelectedPlatforms(),
-                    size: document.getElementById('imageSize').value,
+                    size: document.getElementById('imageSize').value || '1080x1080',
                     characteristics: 'フィード広告'
                 }
             };
             
             try {
-                // JSONP方式でGAS APIを呼び出し
-                const callbackName = 'callback_' + Date.now();
-                
-                // Promise でJSONPをラップ
-                const jsonpRequest = new Promise((resolve, reject) => {
-                    // タイムアウト設定
-                    const timeout = setTimeout(() => {
-                        delete window[callbackName];
-                        reject(new Error('リクエストタイムアウト'));
-                    }, 30000);
-                    
-                    // コールバック関数を定義
-                    window[callbackName] = function(response) {
-                        clearTimeout(timeout);
-                        delete window[callbackName];
-                        resolve(response);
-                    };
-                    
-                    // スクリプトタグを作成してリクエスト
-                    const script = document.createElement('script');
-                    const data = encodeURIComponent(JSON.stringify(formData));
-                    script.src = `${GAS_URL}?callback=${callbackName}&action=generateImage&data=${data}`;
-                    
-                    script.onerror = () => {
-                        clearTimeout(timeout);
-                        delete window[callbackName];
-                        reject(new Error('スクリプトの読み込みに失敗しました'));
-                    };
-                    
-                    document.body.appendChild(script);
-                    
-                    // クリーンアップ
-                    setTimeout(() => {
-                        if (script.parentNode) {
-                            script.parentNode.removeChild(script);
-                        }
-                    }, 1000);
-                });
-                
-                // レスポンスを待つ
-                const result = await jsonpRequest;
+                // iframe + postMessage方式で通信
+                const result = await callGASApi(formData);
                 
                 clearInterval(progressInterval);
                 progressFill.style.width = '100%';
@@ -913,7 +874,8 @@
                     
                     // 画像表示
                     previewContainer.innerHTML = `
-                        <img src="${currentImageUrl}" alt="Generated Creative" class="preview-image">
+                        <img src="${currentImageUrl}" alt="Generated Creative" class="preview-image" 
+                             onerror="this.onerror=null; this.src='https://via.placeholder.com/1080x1080/4285f4/ffffff?text=Generated+Creative';">
                     `;
                     
                     // 分析結果表示
@@ -947,6 +909,88 @@
                         </button>
                     </div>
                 `;
+            }
+        }
+        
+        // GAS APIを呼び出す関数（iframe方式）
+        function callGASApi(data) {
+            return new Promise((resolve, reject) => {
+                // タイムアウト設定
+                const timeout = setTimeout(() => {
+                    reject(new Error('リクエストタイムアウト（30秒）'));
+                }, 30000);
+                
+                // メッセージリスナー設定
+                const messageHandler = (event) => {
+                    // セキュリティチェック（必要に応じてオリジンを確認）
+                    // if (event.origin !== 'https://script.google.com') return;
+                    
+                    try {
+                        const result = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+                        
+                        if (result && (result.success !== undefined)) {
+                            clearTimeout(timeout);
+                            window.removeEventListener('message', messageHandler);
+                            resolve(result);
+                        }
+                    } catch (e) {
+                        console.log('Message parse error:', e);
+                    }
+                };
+                
+                window.addEventListener('message', messageHandler);
+                
+                // iframeを作成して送信
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.name = 'gasFrame';
+                document.body.appendChild(iframe);
+                
+                // フォームを作成して送信
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = GAS_URL;
+                form.target = 'gasFrame';
+                
+                // データを隠しフィールドとして追加
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'data';
+                input.value = JSON.stringify(data);
+                form.appendChild(input);
+                
+                // アクションフィールドも追加
+                const actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'generateImage';
+                form.appendChild(actionInput);
+                
+                document.body.appendChild(form);
+                form.submit();
+                
+                // クリーンアップ
+                setTimeout(() => {
+                    if (form.parentNode) form.parentNode.removeChild(form);
+                    if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+                }, 1000);
+            });
+        }
+        
+        // 代替: シンプルなGET リクエスト（デバッグ用）
+        async function testGASConnection() {
+            try {
+                // GETリクエストでテスト
+                const testUrl = GAS_URL + '?action=test';
+                const response = await fetch(testUrl, {
+                    method: 'GET',
+                    mode: 'no-cors'
+                });
+                console.log('GAS接続テスト完了');
+                return true;
+            } catch (error) {
+                console.error('GAS接続テスト失敗:', error);
+                return false;
             }
         }
         
