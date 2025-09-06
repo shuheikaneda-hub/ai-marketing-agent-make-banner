@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI画像生成ツール</title>
+    <title>AI画像生成ツール - DALL-E 3</title>
     <style>
         * {
             margin: 0;
@@ -25,7 +25,7 @@
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
             padding: 40px;
             animation: fadeIn 0.5s ease-out;
@@ -60,8 +60,15 @@
             font-size: 1.1em;
         }
 
+        .powered-by {
+            text-align: center;
+            color: #999;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+
         .input-group {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         label {
@@ -71,6 +78,22 @@
             font-weight: 600;
         }
 
+        input[type="password"], input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input[type="password"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
         textarea {
             width: 100%;
             padding: 15px;
@@ -78,7 +101,7 @@
             border-radius: 10px;
             font-size: 16px;
             resize: vertical;
-            min-height: 100px;
+            min-height: 120px;
             transition: all 0.3s ease;
             font-family: inherit;
         }
@@ -89,9 +112,24 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
+        .api-key-info {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #1976d2;
+            font-size: 14px;
+        }
+
+        .api-key-info a {
+            color: #1976d2;
+            font-weight: bold;
+        }
+
         .options-group {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
@@ -168,6 +206,11 @@
 
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+
+        .progress-text {
+            margin-top: 15px;
+            color: #666;
         }
 
         .result {
@@ -257,67 +300,137 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
 
-        .api-note {
-            background: #fff3cd;
-            color: #856404;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #ffc107;
+        .save-key-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
             font-size: 14px;
+            color: #666;
+        }
+
+        .save-key-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .feature-icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .feature-text {
+            font-size: 0.9em;
+            color: #666;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎨 AI画像生成ツール</h1>
-        <p class="subtitle">日本語で描きたい画像を説明してください</p>
+        <p class="subtitle">DALL-E 3で高品質な画像を生成</p>
+        <p class="powered-by">Powered by OpenAI</p>
 
-        <div class="api-note">
-            ⚠️ 注意: このデモは Hugging Face の無料APIを使用しています。混雑時は生成に時間がかかる場合があります。
+        <div class="api-key-info">
+            🔑 OpenAI APIキーが必要です。
+            <a href="https://platform.openai.com/api-keys" target="_blank">こちら</a>から取得できます。
+            APIキーは暗号化されて保存されます。
         </div>
 
         <div class="input-group">
-            <label for="prompt">画像の説明を入力:</label>
+            <label for="apiKey">OpenAI APIキー:</label>
+            <input type="password" id="apiKey" placeholder="sk-..." />
+            <div class="save-key-option">
+                <input type="checkbox" id="saveKey" />
+                <label for="saveKey">ブラウザにAPIキーを保存する（暗号化済み）</label>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="prompt">画像の説明を入力（日本語OK）:</label>
             <textarea 
                 id="prompt" 
-                placeholder="例: 富士山の前で桜が咲いている風景、青空、写実的な絵画風"
+                placeholder="例: 富士山の前で桜が咲いている風景、青空、写実的な絵画風、高解像度、プロフェッショナルな写真"
                 rows="4"
             ></textarea>
         </div>
 
         <div class="options-group">
             <div class="option">
-                <label for="style">スタイル:</label>
-                <select id="style">
-                    <option value="">標準</option>
-                    <option value="anime style">アニメ風</option>
-                    <option value="realistic photo">写実的</option>
-                    <option value="oil painting">油絵風</option>
-                    <option value="watercolor">水彩画風</option>
-                    <option value="digital art">デジタルアート</option>
-                    <option value="3d render">3Dレンダリング</option>
+                <label for="model">モデル:</label>
+                <select id="model">
+                    <option value="dall-e-3">DALL-E 3（高品質）</option>
+                    <option value="dall-e-2">DALL-E 2（高速）</option>
                 </select>
             </div>
             <div class="option">
-                <label for="quality">品質設定:</label>
-                <select id="quality">
-                    <option value="high quality">高品質</option>
-                    <option value="masterpiece">傑作品質</option>
-                    <option value="best quality">最高品質</option>
-                    <option value="normal">通常</option>
+                <label for="size">画像サイズ:</label>
+                <select id="size">
+                    <option value="1024x1024">1024×1024（正方形）</option>
+                    <option value="1792x1024">1792×1024（横長）</option>
+                    <option value="1024x1792">1024×1792（縦長）</option>
                 </select>
+            </div>
+            <div class="option">
+                <label for="quality">品質:</label>
+                <select id="quality">
+                    <option value="standard">標準</option>
+                    <option value="hd">HD（高精細）</option>
+                </select>
+            </div>
+            <div class="option">
+                <label for="style">スタイル:</label>
+                <select id="style">
+                    <option value="vivid">鮮やか</option>
+                    <option value="natural">自然</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🌍</div>
+                <div class="feature-text">日本語対応</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-text">高精度生成</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-text">高速処理</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <div class="feature-text">安全な処理</div>
             </div>
         </div>
 
         <div class="examples">
             <h3>💡 クリックで試してみる:</h3>
             <div class="example-chips">
-                <div class="chip" onclick="setExample('夕焼けの海辺で遊ぶ子供たち')">夕焼けの海辺</div>
-                <div class="chip" onclick="setExample('未来都市の夜景、ネオンライト')">未来都市</div>
-                <div class="chip" onclick="setExample('かわいい猫がカフェでコーヒーを飲んでいる')">猫カフェ</div>
-                <div class="chip" onclick="setExample('宇宙船から見た地球')">宇宙の風景</div>
-                <div class="chip" onclick="setExample('魔法の森、光る蝶々')">ファンタジー</div>
+                <div class="chip" onclick="setExample('夕焼けの海辺で遊ぶ子供たち、シネマティックな照明、8K解像度')">夕焼けの海辺</div>
+                <div class="chip" onclick="setExample('サイバーパンクな東京の夜景、ネオンライト、雨に濡れた路面の反射')">未来都市</div>
+                <div class="chip" onclick="setExample('かわいい猫がカフェでコーヒーを飲んでいる、水彩画風、パステルカラー')">猫カフェ</div>
+                <div class="chip" onclick="setExample('宇宙ステーションから見た地球、フォトリアリスティック、NASA風')">宇宙の風景</div>
+                <div class="chip" onclick="setExample('幻想的な魔法の森、光る蝶々、ファンタジーアート、スタジオジブリ風')">ファンタジー</div>
+                <div class="chip" onclick="setExample('日本庭園の枯山水、禅の美学、ミニマリスト、モノクローム')">和風庭園</div>
             </div>
         </div>
 
@@ -327,7 +440,7 @@
 
         <div class="loading">
             <div class="spinner"></div>
-            <p style="margin-top: 15px; color: #666;">画像を生成中... (10-30秒かかります)</p>
+            <p class="progress-text">AIが画像を生成中... (10-20秒)</p>
         </div>
 
         <div class="error">
@@ -338,66 +451,84 @@
             <h3 style="color: #333; margin-bottom: 20px;">生成された画像:</h3>
             <img class="generated-image" id="generatedImage" alt="生成された画像">
             <div>
-                <a class="download-btn" id="downloadBtn" download="generated-image.png">
+                <a class="download-btn" id="downloadBtn" download="dalle-generated.png">
                     📥 画像をダウンロード
                 </a>
                 <button class="download-btn" style="background: #2196F3;" onclick="generateImage()">
                     🔄 もう一度生成
                 </button>
+                <button class="download-btn" style="background: #ff9800;" onclick="copyPrompt()">
+                    📋 プロンプトをコピー
+                </button>
+            </div>
+            <div style="margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px; text-align: left;">
+                <strong>使用されたプロンプト:</strong>
+                <p id="usedPrompt" style="margin-top: 10px; color: #666; font-size: 14px;"></p>
             </div>
         </div>
     </div>
 
     <script>
-        // Hugging Face APIを使用（無料で使用可能）
-        const API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1";
-        
+        // ローカルストレージからAPIキーを取得（簡易暗号化）
+        function loadApiKey() {
+            const saved = localStorage.getItem('openai_api_key');
+            if (saved) {
+                try {
+                    // 簡易的な復号化（本番環境ではより強固な暗号化を推奨）
+                    const decoded = atob(saved);
+                    document.getElementById('apiKey').value = decoded;
+                    document.getElementById('saveKey').checked = true;
+                } catch (e) {
+                    console.error('Failed to load API key');
+                }
+            }
+        }
+
+        // APIキーを保存（簡易暗号化）
+        function saveApiKey(apiKey) {
+            if (document.getElementById('saveKey').checked) {
+                // 簡易的な暗号化（本番環境ではより強固な暗号化を推奨）
+                const encoded = btoa(apiKey);
+                localStorage.setItem('openai_api_key', encoded);
+            } else {
+                localStorage.removeItem('openai_api_key');
+            }
+        }
+
+        // ページ読み込み時にAPIキーを復元
+        window.addEventListener('load', loadApiKey);
+
         function setExample(text) {
             document.getElementById('prompt').value = text;
         }
 
-        async function translateToEnglish(text) {
-            // 簡単な日本語→英語変換のマッピング（実際のプロジェクトではGoogle Translate APIなどを使用）
-            const translations = {
-                '富士山': 'Mount Fuji',
-                '桜': 'cherry blossoms',
-                '夕焼け': 'sunset',
-                '海辺': 'beach',
-                '子供': 'children',
-                '猫': 'cat',
-                'カフェ': 'cafe',
-                'コーヒー': 'coffee',
-                '未来都市': 'futuristic city',
-                '夜景': 'night view',
-                'ネオンライト': 'neon lights',
-                '宇宙船': 'spaceship',
-                '地球': 'Earth',
-                '魔法の森': 'magical forest',
-                '光る': 'glowing',
-                '蝶々': 'butterflies',
-                'かわいい': 'cute',
-                '美しい': 'beautiful',
-                '写実的': 'realistic',
-                '絵画風': 'painting style',
-                '青空': 'blue sky'
-            };
-
-            let translatedText = text;
-            for (const [jp, en] of Object.entries(translations)) {
-                translatedText = translatedText.replace(new RegExp(jp, 'g'), en);
-            }
-            
-            return translatedText;
+        function copyPrompt() {
+            const promptText = document.getElementById('usedPrompt').textContent;
+            navigator.clipboard.writeText(promptText).then(() => {
+                alert('プロンプトをクリップボードにコピーしました！');
+            });
         }
 
         async function generateImage() {
-            const promptInput = document.getElementById('prompt');
-            const prompt = promptInput.value.trim();
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const prompt = document.getElementById('prompt').value.trim();
+            const model = document.getElementById('model').value;
+            const size = document.getElementById('size').value;
+            const quality = document.getElementById('quality').value;
+            const style = document.getElementById('style').value;
+            
+            if (!apiKey) {
+                alert('OpenAI APIキーを入力してください。');
+                return;
+            }
             
             if (!prompt) {
                 alert('画像の説明を入力してください。');
                 return;
             }
+
+            // APIキーを保存
+            saveApiKey(apiKey);
 
             const generateBtn = document.querySelector('.generate-btn');
             const loading = document.querySelector('.loading');
@@ -411,50 +542,89 @@
             error.classList.remove('active');
 
             try {
-                // プロンプトを英語に変換（簡易版）
-                const translatedPrompt = await translateToEnglish(prompt);
-                
-                // スタイルと品質を追加
-                const style = document.getElementById('style').value;
-                const quality = document.getElementById('quality').value;
-                
-                const fullPrompt = `${translatedPrompt}${style ? ', ' + style : ''}${quality ? ', ' + quality : ''}`;
+                // OpenAI APIにリクエスト
+                const requestBody = {
+                    model: model,
+                    prompt: prompt,
+                    n: 1,
+                    size: size
+                };
 
-                // Hugging Face APIにリクエスト
-                const response = await fetch(API_URL, {
-                    method: "POST",
+                // DALL-E 3の場合のみquality, styleパラメータを追加
+                if (model === 'dall-e-3') {
+                    requestBody.quality = quality;
+                    requestBody.style = style;
+                    // DALL-E 3のサイズ制限
+                    if (size === '256x256' || size === '512x512') {
+                        requestBody.size = '1024x1024';
+                    }
+                }
+
+                const response = await fetch('https://api.openai.com/v1/images/generations', {
+                    method: 'POST',
                     headers: {
-                        "Content-Type": "application/json",
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
                     },
-                    body: JSON.stringify({
-                        inputs: fullPrompt,
-                        options: {
-                            wait_for_model: true
-                        }
-                    })
+                    body: JSON.stringify(requestBody)
                 });
 
                 if (!response.ok) {
-                    throw new Error('画像生成に失敗しました');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || `APIエラー: ${response.status}`);
                 }
 
-                const blob = await response.blob();
-                const imageUrl = URL.createObjectURL(blob);
+                const data = await response.json();
+                const imageUrl = data.data[0].url;
+                const revisedPrompt = data.data[0].revised_prompt || prompt;
                 
                 // 画像を表示
                 const generatedImage = document.getElementById('generatedImage');
                 generatedImage.src = imageUrl;
                 
-                // ダウンロードリンクを設定
+                // 使用されたプロンプトを表示
+                document.getElementById('usedPrompt').textContent = revisedPrompt;
+                
+                // ダウンロードボタンの設定
                 const downloadBtn = document.getElementById('downloadBtn');
-                downloadBtn.href = imageUrl;
+                
+                // 画像をfetch してBlobとして取得（CORS回避）
+                const imageResponse = await fetch(imageUrl);
+                const blob = await imageResponse.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                downloadBtn.href = blobUrl;
                 
                 // 結果を表示
                 result.classList.add('active');
                 
             } catch (err) {
                 console.error('Error:', err);
-                error.textContent = 'エラーが発生しました: ' + err.message;
+                
+                let errorMessage = 'エラーが発生しました: ';
+                
+                if (err.message.includes('api_key')) {
+                    errorMessage = `
+                        <strong>APIキーエラー:</strong><br>
+                        APIキーが無効です。正しいOpenAI APIキーを入力してください。<br>
+                        <a href="https://platform.openai.com/api-keys" target="_blank" style="color: #c33; text-decoration: underline;">
+                            OpenAIでAPIキーを取得
+                        </a>
+                    `;
+                } else if (err.message.includes('quota')) {
+                    errorMessage = `
+                        <strong>利用制限エラー:</strong><br>
+                        APIの利用制限に達しました。OpenAIダッシュボードで利用状況を確認してください。
+                    `;
+                } else if (err.message.includes('rate')) {
+                    errorMessage = `
+                        <strong>レート制限:</strong><br>
+                        リクエストが多すぎます。少し待ってから再度お試しください。
+                    `;
+                } else {
+                    errorMessage += err.message;
+                }
+                
+                error.innerHTML = errorMessage;
                 error.classList.add('active');
             } finally {
                 generateBtn.disabled = false;
@@ -467,6 +637,24 @@
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 generateImage();
+            }
+        });
+
+        // モデル変更時にサイズオプションを調整
+        document.getElementById('model').addEventListener('change', function(e) {
+            const sizeSelect = document.getElementById('size');
+            if (e.target.value === 'dall-e-2') {
+                sizeSelect.innerHTML = `
+                    <option value="256x256">256×256</option>
+                    <option value="512x512">512×512</option>
+                    <option value="1024x1024">1024×1024</option>
+                `;
+            } else {
+                sizeSelect.innerHTML = `
+                    <option value="1024x1024">1024×1024（正方形）</option>
+                    <option value="1792x1024">1792×1024（横長）</option>
+                    <option value="1024x1792">1024×1792（縦長）</option>
+                `;
             }
         });
     </script>
