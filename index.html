@@ -777,7 +777,7 @@
     
     <script>
         // GAS Endpoint URL (デプロイ後のURLに置き換え)
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxRH4neR5e-iyqapVZvWLMh8BA8IOu0qk4MWKi_ggvleZw4zx8oyzTdFwhFErEAdBom/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzJrN_q3BUEzY-lCvbVlnMKVVALf-HpddIrAj6NmZoap3X-gKRrhnfmyQFOxftFeX2KSQ/exec';
         
         // 現在の画像URL
         let currentImageUrl = '';
@@ -862,43 +862,79 @@
             };
             
             try {
-                // GAS APIを呼び出し
+                // GAS APIを呼び出し（修正版）
                 const response = await fetch(GAS_URL, {
                     method: 'POST',
-                    mode: 'cors',
+                    mode: 'no-cors', // CORSモードを変更
                     headers: {
-                        'Content-Type': 'text/plain'
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     },
                     body: JSON.stringify(formData)
                 });
                 
-                const result = await response.json();
+                // no-corsモードの場合、レスポンスを直接読めないため、別の方法を使用
+                // JSONPまたはGoogle Apps ScriptのdoGetを使用
                 
-                clearInterval(progressInterval);
-                progressFill.style.width = '100%';
-                progressText.textContent = '100%';
+                // 代替案: fetchの代わりにXMLHttpRequestを使用
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', GAS_URL, true);
+                xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
                 
-                if (result.success) {
-                    currentImageUrl = result.imageUrl;
+                xhr.onload = function() {
+                    clearInterval(progressInterval);
+                    progressFill.style.width = '100%';
+                    progressText.textContent = '100%';
                     
-                    // 画像表示
+                    if (xhr.status === 200) {
+                        try {
+                            const result = JSON.parse(xhr.responseText);
+                            
+                            if (result.success) {
+                                currentImageUrl = result.imageUrl;
+                                
+                                // 画像表示
+                                previewContainer.innerHTML = `
+                                    <img src="${currentImageUrl}" alt="Generated Creative" class="preview-image">
+                                `;
+                                
+                                // 分析結果表示
+                                displayAnalysis(result);
+                                
+                                // ボタン表示
+                                document.getElementById('actionButtons').style.display = 'flex';
+                                
+                                setTimeout(() => {
+                                    progressBar.style.display = 'none';
+                                }, 1000);
+                                
+                            } else {
+                                throw new Error(result.error || '生成に失敗しました');
+                            }
+                        } catch (parseError) {
+                            console.error('Parse error:', parseError);
+                            throw new Error('レスポンスの解析に失敗しました');
+                        }
+                    } else {
+                        throw new Error('サーバーエラー: ' + xhr.status);
+                    }
+                };
+                
+                xhr.onerror = function() {
+                    clearInterval(progressInterval);
+                    progressBar.style.display = 'none';
+                    
                     previewContainer.innerHTML = `
-                        <img src="${currentImageUrl}" alt="Generated Creative" class="preview-image">
+                        <div class="preview-placeholder">
+                            <i style="color: var(--secondary);">⚠️</i>
+                            <h3>接続エラー</h3>
+                            <p style="margin-top: 10px; color: var(--secondary);">
+                                サーバーに接続できませんでした
+                            </p>
+                        </div>
                     `;
-                    
-                    // 分析結果表示
-                    displayAnalysis(result);
-                    
-                    // ボタン表示
-                    document.getElementById('actionButtons').style.display = 'flex';
-                    
-                    setTimeout(() => {
-                        progressBar.style.display = 'none';
-                    }, 1000);
-                    
-                } else {
-                    throw new Error(result.error || '生成に失敗しました');
-                }
+                };
+                
+                xhr.send(JSON.stringify(formData));
                 
             } catch (error) {
                 console.error('Error:', error);
