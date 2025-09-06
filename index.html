@@ -778,7 +778,7 @@
     <script>
         // GAS Endpoint URL (デプロイ後のURLに置き換え)
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbzJrN_q3BUEzY-lCvbVlnMKVVALf-HpddIrAj6NmZoap3X-gKRrhnfmyQFOxftFeX2KSQ/exec';
-        
+
         // 現在の画像URL
         let currentImageUrl = '';
         
@@ -862,79 +862,73 @@
             };
             
             try {
-                // GAS APIを呼び出し（修正版）
-                const response = await fetch(GAS_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // CORSモードを変更
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: JSON.stringify(formData)
+                // JSONP方式でGAS APIを呼び出し
+                const callbackName = 'callback_' + Date.now();
+                
+                // Promise でJSONPをラップ
+                const jsonpRequest = new Promise((resolve, reject) => {
+                    // タイムアウト設定
+                    const timeout = setTimeout(() => {
+                        delete window[callbackName];
+                        reject(new Error('リクエストタイムアウト'));
+                    }, 30000);
+                    
+                    // コールバック関数を定義
+                    window[callbackName] = function(response) {
+                        clearTimeout(timeout);
+                        delete window[callbackName];
+                        resolve(response);
+                    };
+                    
+                    // スクリプトタグを作成してリクエスト
+                    const script = document.createElement('script');
+                    const data = encodeURIComponent(JSON.stringify(formData));
+                    script.src = `${GAS_URL}?callback=${callbackName}&action=generateImage&data=${data}`;
+                    
+                    script.onerror = () => {
+                        clearTimeout(timeout);
+                        delete window[callbackName];
+                        reject(new Error('スクリプトの読み込みに失敗しました'));
+                    };
+                    
+                    document.body.appendChild(script);
+                    
+                    // クリーンアップ
+                    setTimeout(() => {
+                        if (script.parentNode) {
+                            script.parentNode.removeChild(script);
+                        }
+                    }, 1000);
                 });
                 
-                // no-corsモードの場合、レスポンスを直接読めないため、別の方法を使用
-                // JSONPまたはGoogle Apps ScriptのdoGetを使用
+                // レスポンスを待つ
+                const result = await jsonpRequest;
                 
-                // 代替案: fetchの代わりにXMLHttpRequestを使用
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', GAS_URL, true);
-                xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+                progressText.textContent = '100%';
                 
-                xhr.onload = function() {
-                    clearInterval(progressInterval);
-                    progressFill.style.width = '100%';
-                    progressText.textContent = '100%';
+                if (result.success) {
+                    currentImageUrl = result.imageUrl;
                     
-                    if (xhr.status === 200) {
-                        try {
-                            const result = JSON.parse(xhr.responseText);
-                            
-                            if (result.success) {
-                                currentImageUrl = result.imageUrl;
-                                
-                                // 画像表示
-                                previewContainer.innerHTML = `
-                                    <img src="${currentImageUrl}" alt="Generated Creative" class="preview-image">
-                                `;
-                                
-                                // 分析結果表示
-                                displayAnalysis(result);
-                                
-                                // ボタン表示
-                                document.getElementById('actionButtons').style.display = 'flex';
-                                
-                                setTimeout(() => {
-                                    progressBar.style.display = 'none';
-                                }, 1000);
-                                
-                            } else {
-                                throw new Error(result.error || '生成に失敗しました');
-                            }
-                        } catch (parseError) {
-                            console.error('Parse error:', parseError);
-                            throw new Error('レスポンスの解析に失敗しました');
-                        }
-                    } else {
-                        throw new Error('サーバーエラー: ' + xhr.status);
-                    }
-                };
-                
-                xhr.onerror = function() {
-                    clearInterval(progressInterval);
-                    progressBar.style.display = 'none';
-                    
+                    // 画像表示
                     previewContainer.innerHTML = `
-                        <div class="preview-placeholder">
-                            <i style="color: var(--secondary);">⚠️</i>
-                            <h3>接続エラー</h3>
-                            <p style="margin-top: 10px; color: var(--secondary);">
-                                サーバーに接続できませんでした
-                            </p>
-                        </div>
+                        <img src="${currentImageUrl}" alt="Generated Creative" class="preview-image">
                     `;
-                };
-                
-                xhr.send(JSON.stringify(formData));
+                    
+                    // 分析結果表示
+                    displayAnalysis(result);
+                    
+                    // ボタン表示
+                    document.getElementById('actionButtons').style.display = 'flex';
+                    
+                    setTimeout(() => {
+                        progressBar.style.display = 'none';
+                    }, 1000);
+                    
+                } else {
+                    throw new Error(result.error || '生成に失敗しました');
+                }
                 
             } catch (error) {
                 console.error('Error:', error);
@@ -948,6 +942,9 @@
                         <p style="margin-top: 10px; color: var(--secondary);">
                             ${error.message}
                         </p>
+                        <button class="btn btn-secondary" style="margin-top: 15px;" onclick="generateCreative()">
+                            再試行
+                        </button>
                     </div>
                 `;
             }
