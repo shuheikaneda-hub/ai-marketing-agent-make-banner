@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI画像生成ツール - Gemini</title>
+    <title>AI画像生成ツール - Gemini 2.5</title>
     <style>
         * {
             margin: 0;
@@ -78,7 +78,7 @@
             font-weight: 600;
         }
 
-        input[type="password"], input[type="text"], input[type="file"] {
+        input[type="password"], input[type="text"] {
             width: 100%;
             padding: 15px;
             border: 2px solid #e0e0e0;
@@ -88,7 +88,7 @@
             font-family: inherit;
         }
 
-        input[type="password"]:focus, input[type="text"]:focus, input[type="file"]:focus {
+        input[type="password"]:focus, input[type="text"]:focus {
             outline: none;
             border-color: #4285f4;
             box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
@@ -139,7 +139,7 @@
             flex-direction: column;
         }
 
-        select {
+        select, input[type="range"] {
             padding: 10px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
@@ -149,9 +149,16 @@
             transition: all 0.3s ease;
         }
 
-        select:focus {
+        select:focus, input[type="range"]:focus {
             outline: none;
             border-color: #4285f4;
+        }
+
+        .range-value {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 14px;
+            color: #666;
         }
 
         .generate-btn {
@@ -342,81 +349,30 @@
             color: #666;
         }
 
-        .upload-area {
-            border: 2px dashed #4285f4;
-            border-radius: 10px;
-            padding: 30px;
-            text-align: center;
-            background: #f8f9fa;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-
-        .upload-area:hover {
-            background: #e8f0fe;
-            border-color: #1967d2;
-        }
-
-        .upload-area.dragover {
-            background: #e8f0fe;
-            border-color: #1967d2;
-            transform: scale(1.02);
-        }
-
-        .preview-image {
-            max-width: 200px;
-            max-height: 200px;
-            margin: 10px auto;
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
             border-radius: 8px;
-            display: none;
-        }
-
-        .preview-image.active {
-            display: block;
-        }
-
-        .mode-selector {
-            display: flex;
-            gap: 10px;
             margin-bottom: 20px;
-            justify-content: center;
-        }
-
-        .mode-btn {
-            padding: 10px 20px;
-            border: 2px solid #e0e0e0;
-            background: white;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-        }
-
-        .mode-btn.active {
-            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
-            color: white;
-            border-color: transparent;
-        }
-
-        .mode-content {
-            display: none;
-        }
-
-        .mode-content.active {
-            display: block;
+            border-left: 4px solid #ffc107;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎨 Gemini AI画像生成ツール</h1>
-        <p class="subtitle">Google Gemini 2.0 Flash Experimental</p>
+        <p class="subtitle">Gemini 2.5 Flash Image Preview</p>
         <p class="powered-by">Powered by Google AI</p>
 
         <div class="api-key-info">
             🔑 Google AI Studio APIキーが必要です。
             <a href="https://aistudio.google.com/app/apikey" target="_blank">こちら</a>から無料で取得できます。
+        </div>
+
+        <div class="warning">
+            ⚠️ 注意: Gemini 2.5 Flash Image Previewは実験的なモデルです。APIレスポンスは変更される可能性があります。
         </div>
 
         <div class="input-group">
@@ -428,65 +384,43 @@
             </div>
         </div>
 
-        <div class="mode-selector">
-            <button class="mode-btn active" onclick="switchMode('generate')">画像生成</button>
-            <button class="mode-btn" onclick="switchMode('edit')">画像編集</button>
-        </div>
-
-        <div id="generate-mode" class="mode-content active">
-            <div class="input-group">
-                <label for="prompt">画像の説明を入力（日本語OK）:</label>
-                <textarea 
-                    id="prompt" 
-                    placeholder="例: 富士山の前で桜が咲いている風景、青空、写実的な絵画風、高解像度、8K画質"
-                    rows="4"
-                ></textarea>
-            </div>
-        </div>
-
-        <div id="edit-mode" class="mode-content">
-            <div class="upload-area" onclick="document.getElementById('imageInput').click()">
-                <div class="feature-icon">📷</div>
-                <p>画像をアップロード</p>
-                <p style="font-size: 12px; color: #999;">クリックまたはドラッグ＆ドロップ</p>
-                <input type="file" id="imageInput" accept="image/*" style="display: none;">
-                <img class="preview-image" id="previewImage" alt="プレビュー">
-            </div>
-
-            <div class="input-group">
-                <label for="editPrompt">編集指示を入力:</label>
-                <textarea 
-                    id="editPrompt" 
-                    placeholder="例: この画像の背景を宇宙に変更して、猫に宇宙服を着せてください"
-                    rows="3"
-                ></textarea>
-            </div>
+        <div class="input-group">
+            <label for="prompt">画像の説明を入力（日本語OK）:</label>
+            <textarea 
+                id="prompt" 
+                placeholder="例: 富士山の前で桜が咲いている風景、青空、写実的な絵画風、高解像度、8K画質、プロフェッショナルな写真"
+                rows="4"
+            ></textarea>
         </div>
 
         <div class="options-group">
             <div class="option">
-                <label for="model">モデル:</label>
-                <select id="model">
-                    <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (最新)</option>
-                    <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                    <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-                </select>
-            </div>
-            <div class="option">
-                <label for="temperature">創造性:</label>
-                <select id="temperature">
-                    <option value="0.4">低（安定）</option>
-                    <option value="0.7" selected>中（バランス）</option>
-                    <option value="1.0">高（創造的）</option>
+                <label for="imageCount">生成枚数:</label>
+                <select id="imageCount">
+                    <option value="1">1枚</option>
+                    <option value="2">2枚</option>
+                    <option value="3">3枚</option>
+                    <option value="4">4枚</option>
                 </select>
             </div>
             <div class="option">
                 <label for="aspectRatio">アスペクト比:</label>
                 <select id="aspectRatio">
-                    <option value="1:1">1:1（正方形）</option>
-                    <option value="16:9">16:9（横長）</option>
-                    <option value="9:16">9:16（縦長）</option>
-                    <option value="4:3">4:3（標準）</option>
+                    <option value="square">1:1（正方形）</option>
+                    <option value="landscape">16:9（横長）</option>
+                    <option value="portrait">9:16（縦長）</option>
+                    <option value="standard">4:3（標準）</option>
+                </select>
+            </div>
+            <div class="option">
+                <label for="style">スタイル:</label>
+                <select id="style">
+                    <option value="realistic">写実的</option>
+                    <option value="artistic">芸術的</option>
+                    <option value="anime">アニメ風</option>
+                    <option value="digital art">デジタルアート</option>
+                    <option value="oil painting">油絵風</option>
+                    <option value="watercolor">水彩画風</option>
                 </select>
             </div>
         </div>
@@ -505,8 +439,8 @@
                 <div class="feature-text">高品質生成</div>
             </div>
             <div class="feature">
-                <div class="feature-icon">✏️</div>
-                <div class="feature-text">画像編集対応</div>
+                <div class="feature-icon">⚡</div>
+                <div class="feature-text">高速生成</div>
             </div>
         </div>
 
@@ -517,7 +451,7 @@
                 <div class="chip" onclick="setExample('スタジオジブリ風の森の中の小さな家、魔法のような雰囲気、夕暮れ時')">ジブリ風景</div>
                 <div class="chip" onclick="setExample('宇宙飛行士の猫がピザを食べている、月面、地球が背景に見える')">宇宙猫</div>
                 <div class="chip" onclick="setExample('桜吹雪の中の日本庭園、錦鯉が泳ぐ池、禅の雰囲気')">日本庭園</div>
-                <div class="chip" onclick="setExample('レトロフューチャーな車、80年代風、ネオンカラー、シンセウェイブ')">レトロフューチャー</div>
+                <div class="chip" onclick="setExample('nano banana dish in a fancy restaurant with a Gemini theme')">Geminiテーマ</div>
             </div>
         </div>
 
@@ -527,7 +461,7 @@
 
         <div class="loading">
             <div class="spinner"></div>
-            <p class="progress-text">Geminiが画像を生成中... (15-30秒)</p>
+            <p class="progress-text">Geminiが画像を生成中... (10-20秒)</p>
         </div>
 
         <div class="error">
@@ -536,10 +470,10 @@
 
         <div class="result">
             <h3 style="color: #333; margin-bottom: 20px;">生成された画像:</h3>
-            <img class="generated-image" id="generatedImage" alt="生成された画像">
+            <div id="imagesContainer"></div>
             <div>
-                <button class="download-btn" onclick="downloadImage()">
-                    📥 画像をダウンロード
+                <button class="download-btn" onclick="downloadAllImages()">
+                    📥 すべての画像をダウンロード
                 </button>
                 <button class="download-btn" style="background: #4285f4;" onclick="generateImage()">
                     🔄 もう一度生成
@@ -555,48 +489,8 @@
         </div>
     </div>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "@google/generative-ai": "https://esm.run/@google/generative-ai"
-            }
-        }
-    </script>
-    <script type="module">
-        import { GoogleGenerativeAI } from "@google/generative-ai";
-
-        let currentMode = 'generate';
-        let uploadedImage = null;
-        let genAI = null;
-
-        // グローバルスコープに関数を公開
-        window.switchMode = function(mode) {
-            currentMode = mode;
-            const buttons = document.querySelectorAll('.mode-btn');
-            const contents = document.querySelectorAll('.mode-content');
-            
-            buttons.forEach(btn => btn.classList.remove('active'));
-            contents.forEach(content => content.classList.remove('active'));
-            
-            if (mode === 'generate') {
-                buttons[0].classList.add('active');
-                document.getElementById('generate-mode').classList.add('active');
-            } else {
-                buttons[1].classList.add('active');
-                document.getElementById('edit-mode').classList.add('active');
-            }
-        }
-
-        window.setExample = function(text) {
-            document.getElementById('prompt').value = text;
-        }
-
-        window.copyPrompt = function() {
-            const promptText = document.getElementById('usedPrompt').textContent;
-            navigator.clipboard.writeText(promptText).then(() => {
-                alert('プロンプトをクリップボードにコピーしました！');
-            });
-        }
+    <script>
+        let generatedImages = [];
 
         // APIキーの保存と読み込み
         function loadApiKey() {
@@ -621,73 +515,23 @@
             }
         }
 
-        // 画像アップロード処理
-        document.getElementById('imageInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    uploadedImage = e.target.result;
-                    const preview = document.getElementById('previewImage');
-                    preview.src = uploadedImage;
-                    preview.classList.add('active');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // ドラッグ＆ドロップ処理
-        const uploadArea = document.querySelector('.upload-area');
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    uploadedImage = e.target.result;
-                    const preview = document.getElementById('previewImage');
-                    preview.src = uploadedImage;
-                    preview.classList.add('active');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        window.downloadImage = function() {
-            const img = document.getElementById('generatedImage');
-            const link = document.createElement('a');
-            link.href = img.src;
-            link.download = 'gemini-generated.png';
-            link.click();
+        function setExample(text) {
+            document.getElementById('prompt').value = text;
         }
 
-        window.generateImage = async function() {
+        function copyPrompt() {
+            const promptText = document.getElementById('usedPrompt').textContent;
+            navigator.clipboard.writeText(promptText).then(() => {
+                alert('プロンプトをクリップボードにコピーしました！');
+            });
+        }
+
+        async function generateImage() {
             const apiKey = document.getElementById('apiKey').value.trim();
-            const model = document.getElementById('model').value;
-            const temperature = parseFloat(document.getElementById('temperature').value);
+            const prompt = document.getElementById('prompt').value.trim();
+            const imageCount = parseInt(document.getElementById('imageCount').value);
             const aspectRatio = document.getElementById('aspectRatio').value;
-            
-            let prompt;
-            if (currentMode === 'generate') {
-                prompt = document.getElementById('prompt').value.trim();
-            } else {
-                prompt = document.getElementById('editPrompt').value.trim();
-                if (!uploadedImage) {
-                    alert('画像をアップロードしてください。');
-                    return;
-                }
-            }
+            const style = document.getElementById('style').value;
             
             if (!apiKey) {
                 alert('Gemini APIキーを入力してください。');
@@ -695,7 +539,7 @@
             }
             
             if (!prompt) {
-                alert('プロンプトを入力してください。');
+                alert('画像の説明を入力してください。');
                 return;
             }
 
@@ -710,75 +554,102 @@
             loading.classList.add('active');
             result.classList.remove('active');
             error.classList.remove('active');
+            generatedImages = [];
 
             try {
-                // Gemini APIクライアントの初期化
-                genAI = new GoogleGenerativeAI(apiKey);
-                const genModel = genAI.getGenerativeModel({ 
-                    model: model,
+                // プロンプトの拡張
+                const enhancedPrompt = `Create a picture of: ${prompt}, style: ${style}, aspect ratio: ${aspectRatio}, high quality, detailed, professional, 8K resolution`;
+                
+                // Gemini API エンドポイント
+                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+                
+                const requestBody = {
+                    contents: [{
+                        parts: [{
+                            text: enhancedPrompt
+                        }]
+                    }],
                     generationConfig: {
-                        temperature: temperature,
+                        temperature: 0.8,
                         topK: 40,
                         topP: 0.95,
+                        candidateCount: imageCount,
                         maxOutputTokens: 8192,
+                        responseMimeType: "application/json"
                     }
+                };
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
                 });
 
-                // プロンプトの拡張
-                const enhancedPrompt = `${prompt}, aspect ratio: ${aspectRatio}, high quality, detailed, professional`;
-                
-                let response;
-                
-                if (currentMode === 'generate') {
-                    // テキストから画像生成
-                    response = await genModel.generateContent({
-                        contents: [{
-                            parts: [{
-                                text: `Generate an image: ${enhancedPrompt}`
-                            }]
-                        }]
-                    });
-                } else {
-                    // 画像編集モード
-                    const base64Data = uploadedImage.split(',')[1];
-                    response = await genModel.generateContent({
-                        contents: [{
-                            parts: [
-                                {
-                                    text: `Edit this image: ${enhancedPrompt}`
-                                },
-                                {
-                                    inlineData: {
-                                        mimeType: "image/jpeg",
-                                        data: base64Data
-                                    }
-                                }
-                            ]
-                        }]
-                    });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || `APIエラー: ${response.status}`);
                 }
 
-                const result_text = response.response.text();
-                
-                // 注: Gemini APIは現在テキスト応答のみを返すため、
-                // 実際の画像生成には別のサービスとの連携が必要です
-                // ここでは代替としてプレースホルダー画像を表示します
-                
-                // プレースホルダー画像を生成（実際の実装では生成された画像URLを使用）
-                const imageUrl = `https://via.placeholder.com/1024x1024/4285f4/ffffff?text=Gemini+Generated+Image`;
-                
-                // 結果を表示
-                document.getElementById('generatedImage').src = imageUrl;
-                document.getElementById('usedPrompt').textContent = enhancedPrompt;
-                document.querySelector('.result').classList.add('active');
-                
-                // 実際のAPIレスポンスをコンソールに表示
-                console.log('Gemini Response:', result_text);
-                
-                // 注意メッセージを表示
-                if (!result_text.includes('image')) {
-                    alert('注意: Gemini APIは現在画像生成機能が限定的です。テキストレスポンスを確認してください。');
+                const data = await response.json();
+                console.log('API Response:', data);
+
+                // 画像データの処理
+                const imagesContainer = document.getElementById('imagesContainer');
+                imagesContainer.innerHTML = '';
+
+                if (data.candidates && data.candidates.length > 0) {
+                    for (const candidate of data.candidates) {
+                        if (candidate.content && candidate.content.parts) {
+                            for (const part of candidate.content.parts) {
+                                if (part.inlineData && part.inlineData.data) {
+                                    // Base64画像データを処理
+                                    const imageData = part.inlineData.data;
+                                    const mimeType = part.inlineData.mimeType || 'image/png';
+                                    const imageUrl = `data:${mimeType};base64,${imageData}`;
+                                    
+                                    generatedImages.push(imageUrl);
+                                    
+                                    // 画像を表示
+                                    const img = document.createElement('img');
+                                    img.src = imageUrl;
+                                    img.className = 'generated-image';
+                                    imagesContainer.appendChild(img);
+                                } else if (part.text) {
+                                    // テキストレスポンスがある場合は表示
+                                    console.log('Text response:', part.text);
+                                    
+                                    // テキストレスポンスの場合、プレースホルダー画像を表示
+                                    if (!generatedImages.length) {
+                                        const placeholderUrl = `https://via.placeholder.com/1024x1024/4285f4/ffffff?text=Gemini+Generated`;
+                                        generatedImages.push(placeholderUrl);
+                                        
+                                        const img = document.createElement('img');
+                                        img.src = placeholderUrl;
+                                        img.className = 'generated-image';
+                                        imagesContainer.appendChild(img);
+                                        
+                                        // 注意メッセージを表示
+                                        const notice = document.createElement('p');
+                                        notice.style.color = '#856404';
+                                        notice.style.marginTop = '10px';
+                                        notice.textContent = '注意: 画像生成機能は実験段階です。テキストレスポンスが返されました。';
+                                        imagesContainer.appendChild(notice);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
+
+                if (generatedImages.length === 0) {
+                    throw new Error('画像が生成されませんでした。プロンプトを変更して再度お試しください。');
+                }
+
+                // プロンプトを表示
+                document.getElementById('usedPrompt').textContent = enhancedPrompt;
+                result.classList.add('active');
                 
             } catch (err) {
                 console.error('Error:', err);
@@ -798,20 +669,43 @@
                         <strong>利用制限エラー:</strong><br>
                         APIの利用制限に達しました。しばらく待ってから再度お試しください。
                     `;
+                } else if (err.message.includes('model')) {
+                    errorMessage = `
+                        <strong>モデルエラー:</strong><br>
+                        gemini-2.5-flash-image-previewモデルへのアクセスが制限されている可能性があります。<br>
+                        APIキーの権限を確認してください。
+                    `;
                 } else {
                     errorMessage += err.message;
                 }
                 
-                document.querySelector('.error').innerHTML = errorMessage;
-                document.querySelector('.error').classList.add('active');
+                error.innerHTML = errorMessage;
+                error.classList.add('active');
             } finally {
                 generateBtn.disabled = false;
                 loading.classList.remove('active');
             }
         }
 
+        function downloadAllImages() {
+            generatedImages.forEach((imageUrl, index) => {
+                const link = document.createElement('a');
+                link.href = imageUrl;
+                link.download = `gemini-generated-${index + 1}.png`;
+                link.click();
+            });
+        }
+
         // ページ読み込み時にAPIキーを復元
-        loadApiKey();
+        window.addEventListener('load', loadApiKey);
+
+        // Enterキーで生成
+        document.getElementById('prompt').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                generateImage();
+            }
+        });
     </script>
 </body>
 </html>
